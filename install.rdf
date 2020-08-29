@@ -3,7 +3,7 @@
   <description about="urn:mozilla:install-manifest">
     <em:id>pmcid-fetcher@iris-advies.com</em:id>
     <em:name>PMCID fetcher for Zotero</em:name>
-    <em:version>0.0.1</em:version>
+    <em:version>0.0.2</em:version>
     <em:multiprocesscompatible>true</em:multiprocesscompatible>
     <em:updateurl>https://raw.githubusercontent.com/retorquere/pmcid-fetcher/release/deploy/update.rdf</em:updateurl>
     <em:creator>Emiliano Heyns</em:creator>
