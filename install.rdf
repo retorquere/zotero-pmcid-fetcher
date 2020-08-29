@@ -1,30 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
-<rdf xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:em="http://www.mozilla.org/2004/em-rdf#">
-  <description about="urn:mozilla:install-manifest">
-    <em:id>pmcid-fetcher@iris-advies.com</em:id>
-    <em:name>PMCID fetcher for Zotero</em:name>
-    <em:version>0.0.3</em:version>
-    <em:multiprocesscompatible>true</em:multiprocesscompatible>
-    <em:updateurl>https://github.com/retorquere/zotero-pmcid-fetcher/releases/download/release/update.rdf</em:updateurl>
-    <em:creator>Emiliano Heyns</em:creator>
-    <!-- type=extension-->
-    <em:type>2</em:type>
+<RDF xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:em="http://www.mozilla.org/2004/em-rdf#">
+  <Description about="urn:mozilla:install-manifest">
+    <em:name>Zotero PMCID fetcher</em:name>
+    <em:description>Zotero PMCID fetcher</em:description>
     <em:bootstrap>true</em:bootstrap>
-    <!-- Requires Zotero Standalone-->
-    <em:targetapplication>
-      <description>
+    <em:id>pmcid-fetcher@iris-advies.com</em:id>
+    <em:version>0.0.3</em:version>
+    <em:homepageURL>https://github.com/retorquere/zotero-pmcid-fetcher#readme</em:homepageURL>
+    <em:creator>Emiliano Heyns</em:creator>
+    <em:updateURL>https://github.com/retorquere/zotero-pmcid-fetcher/releases/download/release/update.rdf</em:updateURL>
+    <em:type>2</em:type>
+    <em:targetApplication>
+      <Description>
         <em:id>zotero@chnm.gmu.edu</em:id>
-        <em:minversion>5.0b1</em:minversion>
-        <em:maxversion>*</em:maxversion>
-      </description>
-    </em:targetapplication>
-    <!-- Or requires Juris-M-->
-    <em:targetapplication>
-      <description>
+        <em:minVersion>5.0.79</em:minVersion>
+        <em:maxVersion>5.0.*</em:maxVersion>
+      </Description>
+      <Description>
         <em:id>juris-m@juris-m.github.io</em:id>
-        <em:minversion>5.0</em:minversion>
-        <em:maxversion>*</em:maxversion>
-      </description>
-    </em:targetapplication>
-  </description>
-</rdf>
+        <em:minVersion>5.0.79</em:minVersion>
+        <em:maxVersion>5.0.*</em:maxVersion>
+      </Description>
+    </em:targetApplication>
+  </Description>
+</RDF>

@@ -13,7 +13,10 @@
     "type": "git",
     "url": "git+https://github.com/retorquere/zotero-pmcid-fetcher.git"
   },
-  "author": "",
+  "author": {
+    "name": "Emiliano Heyns",
+    "email": "Emiliano.Heyns@iris-advies.com"
+  },
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/retorquere/zotero-pmcid-fetcher/issues"

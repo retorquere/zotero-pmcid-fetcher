@@ -1,25 +1,33 @@
 doctype xml
-rdf(xmlns='http://www.w3.org/1999/02/22-rdf-syntax-ns#' xmlns:em='http://www.mozilla.org/2004/em-rdf#')
-  description(about='urn:mozilla:install-manifest')
-    em:id pmcid-fetcher@iris-advies.com
-    em:name PMCID fetcher for Zotero
-    em:version #{version}
-    em:multiprocesscompatible true
-    em:updateurl
-      | https://github.com/retorquere/zotero-pmcid-fetcher/releases/download/release/update.rdf
-    em:creator Emiliano Heyns
-    // type=extension
+RDF(xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:em="http://www.mozilla.org/2004/em-rdf#")
+  Description(about="urn:mozilla:install-manifest")
+    em:name= name
+    em:description= description
+    if bootstrapped
+      em:bootstrap true
+    if localizedDescriptions
+      each localizedDescription, locale in localizedDescriptions
+        Description
+          em:locale= locale
+          em:name= name
+          em:description= localizedDescription
+    em:id= id
+    em:version= version
+    em:homepageURL= homepage
+    em:creator= author.name
+    if iconURL
+      em:iconURL= iconURL
+    if updateURL
+      em:updateURL= updateURL
     em:type 2
-    em:bootstrap true
-    // Requires Zotero Standalone
-    em:targetapplication
-      description
+    if optionsURL
+      em:optionsURL= optionsURL
+    em:targetApplication
+      Description
         em:id zotero@chnm.gmu.edu
-        em:minversion 5.0b1
-        em:maxversion *
-    // Or requires Juris-M
-    em:targetapplication
-      description
+        em:minVersion 5.0.79
+        em:maxVersion 5.0.*
+      Description
         em:id juris-m@juris-m.github.io
-        em:minversion 5.0
-        em:maxversion *
+        em:minVersion 5.0.79
+        em:maxVersion 5.0.*
