@@ -9,6 +9,12 @@ const pkg = require('./package.json')
 
 const octokit = new Octokit({ auth: `token ${process.env.GITHUB_TOKEN}` })
 
+const argv = require('rasper')(process.argv.slice(2))
+if (argv.issue && !version.issue) {
+  console.log('not on an issue branch')
+  process.exit(1)
+}
+
 const [ , owner, repo ] = pkg.repository.url.match(/https:\/\/github.com\/([^\/]+)\/([^.]+).git$/)
 
 (async function() {
