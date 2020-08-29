@@ -1,6 +1,6 @@
-VERSION := $(shell node -e 'console.log(require("./package.json").version)')
+XPI := $(shell node -e 'console.log(require("./version").xpi)')
 
 pmcid-fetcher:
 	rm -f *.xpi
 	node rdf.js
-	zip zotero-pmcid-fetcher-$(VERSION).xpi bootstrap.js chrome.manifest install.rdf
+	zip $(XPI) bootstrap.js chrome.manifest install.rdf

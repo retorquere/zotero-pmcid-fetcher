@@ -2,3 +2,4 @@ node_modules
 start.sh
 *.xpi
 .env
+.DS_Store
