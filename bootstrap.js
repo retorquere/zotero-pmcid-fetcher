@@ -82,13 +82,20 @@ function getField(item, field) {
   }
 }
 
+function timeout(time, promise) {
+  return new Promise(function(resolve, reject) {
+    setTimeout(function() { reject(new Error('Request timed out.')) }, time)
+    promise.then(resolve, reject)
+  })
+}
+
 async function running() {
   const prefs = Components.classes['@mozilla.org/preferences-service;1'].getService(Components.interfaces.nsIPrefBranch)
   const port = prefs.getIntPref('extensions.zotero.httpServer.port')
   dump(`PMCID: trying fetch on http://127.0.0.1:${port}\n`)
   if (port) {
     try {
-      await fetch(`http://127.0.0.1:${port}`)
+      await timeout(fetch(`http://127.0.0.1:${port}`), 1000)
       return true
     } catch (err) {
       dump(`PMCID: startup fetch failed: ${err.message}\n`)
