@@ -4,6 +4,7 @@
   "description": "Zotero PMCID fetcher",
   "main": "bootstrap.js",
   "scripts": {
+    "lint": "eslint bootstrap.js",
     "test": "make && node release.js --issue",
     "start": "make",
     "version": "make && git add *.rdf",
@@ -26,6 +27,7 @@
     "@octokit/rest": "^18.0.4",
     "current-git-branch": "^1.1.0",
     "dotenv-cli": "^3.2.0",
+    "eslint": "^7.7.0",
     "prettify-xml": "^1.2.0",
     "pug": "^3.0.0",
     "rasper": "^0.2.10"
