@@ -15,7 +15,7 @@ if (argv.issue && !version.issue) {
   process.exit(1)
 }
 
-const [ , owner, repo ] = pkg.repository.url.match(/https:\/\/github.com\/([^\/]+)\/([^.]+).git$/)
+const [ , owner, repo ] = pkg.repository.url.match(/https:\/\/github.com\/([^\/]+)\/([^.]+).git$/);
 
 (async function() {
   let release, m
