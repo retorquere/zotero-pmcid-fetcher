@@ -1,1 +1,30 @@
-<?xml version="1.0" encoding="utf-8" ?><rdf xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:em="http://www.mozilla.org/2004/em-rdf#"><description about="urn:mozilla:install-manifest"><em:id>pmcid-fetcher@iris-advies.com</em:id><em:name>PMCID fetcher for Zotero</em:name><em:version>0.0.0</em:version><em:multiprocesscompatible>true</em:multiprocesscompatible><em:updateurl>https://raw.githubusercontent.com/retorquere/pmcid-fetcher/release/deploy/update.rdf</em:updateurl><em:creator>Emiliano Heyns</em:creator><em:type>2</em:type><!-- type=extension--><em:bootstrap>true</em:bootstrap><!-- Requires Zotero Standalone--><em:targetapplication><description><em:id>zotero@chnm.gmu.edu</em:id><em:minversion>5.0b1</em:minversion><em:maxversion>*</em:maxversion></description></em:targetapplication><!-- Or requires Juris-M--><em:targetapplication><description><em:id>juris-m@juris-m.github.io</em:id><em:minversion>5.0</em:minversion><em:maxversion>*</em:maxversion></description></em:targetapplication></description></rdf>
+<?xml version="1.0" encoding="utf-8"?>
+<rdf xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:em="http://www.mozilla.org/2004/em-rdf#">
+  <description about="urn:mozilla:install-manifest">
+    <em:id>pmcid-fetcher@iris-advies.com</em:id>
+    <em:name>PMCID fetcher for Zotero</em:name>
+    <em:version>0.0.1</em:version>
+    <em:multiprocesscompatible>true</em:multiprocesscompatible>
+    <em:updateurl>https://raw.githubusercontent.com/retorquere/pmcid-fetcher/release/deploy/update.rdf</em:updateurl>
+    <em:creator>Emiliano Heyns</em:creator>
+    <em:type>2</em:type>
+    <!-- type=extension-->
+    <em:bootstrap>true</em:bootstrap>
+    <!-- Requires Zotero Standalone-->
+    <em:targetapplication>
+      <description>
+        <em:id>zotero@chnm.gmu.edu</em:id>
+        <em:minversion>5.0b1</em:minversion>
+        <em:maxversion>*</em:maxversion>
+      </description>
+    </em:targetapplication>
+    <!-- Or requires Juris-M-->
+    <em:targetapplication>
+      <description>
+        <em:id>juris-m@juris-m.github.io</em:id>
+        <em:minversion>5.0</em:minversion>
+        <em:maxversion>*</em:maxversion>
+      </description>
+    </em:targetapplication>
+  </description>
+</rdf>
