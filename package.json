@@ -6,8 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "make",
-    "version": "make && git add install.rdf",
-    "postversion": "git push --follow-tags && dotenv release-it"
+    "version": "make && git add *.rdf",
+    "postversion": "git push --follow-tags && node release.js"
   },
   "repository": {
     "type": "git",
@@ -23,6 +23,7 @@
   },
   "homepage": "https://github.com/retorquere/zotero-pmcid-fetcher#readme",
   "devDependencies": {
+    "@octokit/rest": "^18.0.4",
     "dotenv-cli": "^3.2.0",
     "prettify-xml": "^1.2.0",
     "pug": "^3.0.0"
