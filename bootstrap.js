@@ -44,8 +44,15 @@ async function fetchPMCID() {
   const items = ZoteroPane.getSelectedItems().filter(item => !item.isNote() && !item.isAttachment())
 
   for (const item of items) {
-    let extra = item.getField('extra').split('\n')
-    if (extra.find(line => line.match(/^PMC?ID:/i))) continue
+    const extra = item.getField('extra').split('\n')
+
+    const has = extra.reduce((acc, line) => {
+      const m = line.match(/^(PMC?ID):/i)
+      if (m) acc[m[1].toLowerCase()] = true
+      return acc
+    }, {})
+
+    if (has.pmcid && has.pmid) continue
 
     let doi = getField(item, 'DOI')
 
@@ -70,8 +77,9 @@ async function fetchPMCID() {
       if (!data.records) throw new Error(`no records: ${JSON.stringify(data)}`)
       if (data.records.length !== 1) throw new Error(`${data.records.length} records: ${JSON.stringify(data)}`)
 
-      if (data.records[0].pmcid) extra.push(`PMCID: ${data.records[0].pmcid}`)
-      if (data.records[0].pmid) extra.push(`PMID: ${data.records[0].pmid}`)
+      for (const id of ['pmcid', 'pmid']) {
+        if (!has[id] && data.records[0][id]) extra.push(`${id.toUpperCase()}: ${data.records[0][id]}`)
+      }
 
       item.setField('extra', extra.join('\n'))
       await item.saveTx()
@@ -127,8 +135,10 @@ function shutdown(data, reason) {
   if (Zotero) {
     const ZoteroPane = Zotero.getActiveZoteroPane()
     ZoteroPane.document.getElementById('zotero-itemmenu').removeEventListener('popupshowing', updateMenu, false)
+
+
     const menuitem = ZoteroPane.document.getElementById('fetch-pmcid')
-    if (menuitem) menuitem.hidden = true
+    if (menuitem) menuitem.parentElement.removeChild(menuitem)
   }
 }
 
