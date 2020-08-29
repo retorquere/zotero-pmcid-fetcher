@@ -1,0 +1,23 @@
+{
+  "name": "zotero-pmcid-fetcher",
+  "version": "0.0.0",
+  "description": "Zotero PMCID fetcher",
+  "main": "bootstrap.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "version": "node install.js | xmllint --format - > install.rdf && git add install.rdf"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/retorquere/zotero-pmcid-fetcher.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/retorquere/zotero-pmcid-fetcher/issues"
+  },
+  "homepage": "https://github.com/retorquere/zotero-pmcid-fetcher#readme",
+  "devDependencies": {
+    "pug": "^3.0.0"
+  }
+}
