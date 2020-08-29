@@ -7,8 +7,8 @@ const pkg = require('./package.json')
 
 const octokit = new Octokit({ auth: `token ${process.env.GITHUB_TOKEN}` })
 
-const [ , owner, repo ] = pkg.repository.url.match(/^https:\/\/github.com\/([^\/]+)/([^.]+).git$/)
-const xpi = pkg.name.replace('zotero-', '') + '-' + pkg.version + '.xpi'
+const [ , owner, repo ] = pkg.repository.url.match(/https:\/\/github.com\/([^\/]+)\/([^.]+).git$/)
+const xpi = pkg.name + '-' + pkg.version + '.xpi';
 
 (async function() {
   // create release and attach xpi
@@ -24,10 +24,10 @@ const xpi = pkg.name.replace('zotero-', '') + '-' + pkg.version + '.xpi'
       'content-type': 'application/vnd.zotero.plugin',
       'content-length': fs.statSync(xpi).size,
     },
-    xpi,
+    name: xpi,
   })
 
-  release = await octokit.repos.getReleaseByTag({ owner, repo, 'release' })
+  release = await octokit.repos.getReleaseByTag({ owner, repo, tag: 'release' })
 
   const assets = (await octokit.repos.listReleaseAssets({ owner, repo, release_id: release.data.id })).data
   const update_rdf = assets.find(asset => asset.name === 'update.rdf')
@@ -43,7 +43,7 @@ const xpi = pkg.name.replace('zotero-', '') + '-' + pkg.version + '.xpi'
       'content-type': 'application/rdf+xml',
       'content-length': fs.statSync('update.rdf').size,
     },
-    'update.rdf',
+    name: 'update.rdf',
   })
 
-})().catch(err => throw err)
+})().catch(err => { throw err })
