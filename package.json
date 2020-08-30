@@ -8,7 +8,8 @@
     "test": "make && node release.js --issue",
     "start": "make",
     "version": "make && git add *.rdf",
-    "postversion": "git push --follow-tags && node release.js"
+    "postversion": "git push --follow-tags && node release.js",
+    "release-it": "dotenv release-it"
   },
   "repository": {
     "type": "git",
@@ -30,6 +31,7 @@
     "eslint": "^7.7.0",
     "prettify-xml": "^1.2.0",
     "pug": "^3.0.0",
-    "rasper": "^0.2.10"
+    "rasper": "^0.2.10",
+    "release-it": "^13.7.0"
   }
 }

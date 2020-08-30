@@ -1,0 +1,14 @@
+{
+  "github": {
+    "release": true,
+    "assets": ["*.xpi"]
+  },
+  "increment": false,
+  "git": {
+    "requireCleanWorkingDir": false,
+    "commit": false,
+    "tag": false,
+    "push": false
+  },
+  "npm": false
+}
