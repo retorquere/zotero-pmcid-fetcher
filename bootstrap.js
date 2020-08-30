@@ -5,8 +5,42 @@
 Components.utils.importGlobalProperties(['fetch'])
 Components.utils.import('resource://gre/modules/Services.jsm')
 
+function setTimeout(callback, ms) {
+  const timer = Components.classes['@mozilla.org/timer;1'].createInstance(Components.interfaces.nsITimer)
+  timer.initWithCallback({notify: callback}, ms, Components.interfaces.nsITimer.TYPE_ONE_SHOT)
+  return timer
+}
+
+/*
+function clearTimeout(timer) {
+  timer.cancel()
+}
+*/
+
 var Zotero = null
 const classname = 'fetch-pmcid'
+
+function debug(msg) {
+  msg = `PMCID: ${msg}`
+  if (Zotero) {
+    Zotero.debug(msg)
+  } else {
+    dump(msg + '\n')
+  }
+}
+function flash(title, body = null, timeout = 8) {
+  try {
+    debug(`flashed ${JSON.stringify({title, body})}`)
+    const pw = new Zotero.ProgressWindow()
+    pw.changeHeadline(`PMCID: ${title}`)
+    if (!body) body = title
+    pw.addDescription(body)
+    pw.show()
+    pw.startCloseTimer(timeout * 1000)
+  } catch (err) {
+    debug('@flash failed: ' + JSON.stringify({title, body}) + ': ' + err.message)
+  }
+}
 
 function translate(items, translator) { // returns a promise
   const deferred = Zotero.Promise.defer()
@@ -26,7 +60,7 @@ function translate(items, translator) { // returns a promise
 }
 
 async function postLog(contentType, body) {
-  Zotero.debug(`posting ${body.length}`)
+  debug(`posting ${body.length}`)
   try {
     let response = await fetch('https://file.io', {
       method: 'POST',
@@ -36,13 +70,13 @@ async function postLog(contentType, body) {
     if (!response.ok) throw new Error(response.statusText)
 
     response = await response.text()
-    dump(`PMCID: got: ${response}`)
+    debug(`got: ${response}`)
     response = JSON.parse(response)
     if (!response.success) throw new Error(response.message)
 
     return response.link
   } catch (err) {
-    Services.prompt.alert(null, 'PCMID Debug logs', err.message)
+    Services.prompt.alert(null, 'PMCID Debug logs', err.message)
     return false
   }
 }
@@ -70,7 +104,33 @@ async function debugLog() {
   urls.push(response)
 
   Zotero.debug(`debug log: ${JSON.stringify(urls)}`)
-  Services.prompt.alert(null, 'PCMID Debug logs', urls.join('\n'))
+  Services.prompt.alert(null, 'PMCID Debug logs', urls.join('\n'))
+}
+
+async function running() {
+  const prefs = Components.classes['@mozilla.org/preferences-service;1'].getService(Components.interfaces.nsIPrefBranch)
+  const port = prefs.getIntPref('extensions.zotero.httpServer.port')
+  debug(`trying fetch on http://127.0.0.1:${port}`)
+  if (port) {
+    try {
+      await Promise.race([fetch(`http://127.0.0.1:${port}`), new Promise((resolve, reject) => { setTimeout(function() { reject(new Error('request timed out')) }, 1000) })])
+      return true
+    } catch (err) {
+      debug(`startup fetch failed: ${err.message}`)
+    }
+  }
+
+  // assume not running yet
+  debug('no running Zotero found, awaiting zotero-loaded')
+  return new Promise(function(resolve, _reject) {
+    const observerService = Components.classes['@mozilla.org/observer-service;1'].getService(Components.interfaces.nsIObserverService)
+    const loadObserver = function() {
+      debug('Zotero loaded')
+      observerService.removeObserver(loadObserver, 'zotero-loaded')
+      resolve(true)
+    }
+    observerService.addObserver(loadObserver, 'zotero-loaded', false)
+  })
 }
 
 function getField(item, field) {
@@ -82,112 +142,104 @@ function getField(item, field) {
   }
 }
 
-function timeout(time, promise) {
-  return new Promise(function(resolve, reject) {
-    setTimeout(function() { reject(new Error('Request timed out.')) }, time)
-    promise.then(resolve, reject)
-  })
-}
-
-async function running() {
-  const prefs = Components.classes['@mozilla.org/preferences-service;1'].getService(Components.interfaces.nsIPrefBranch)
-  const port = prefs.getIntPref('extensions.zotero.httpServer.port')
-  dump(`PMCID: trying fetch on http://127.0.0.1:${port}\n`)
-  if (port) {
-    try {
-      await timeout(fetch(`http://127.0.0.1:${port}`), 1000)
-      return true
-    } catch (err) {
-      dump(`PMCID: startup fetch failed: ${err.message}\n`)
-    }
-  }
-
-  // assume not running yet
-  dump('PMCID: no running Zotero found, awaiting zotero-loaded\n')
-  return new Promise(function(resolve, _reject) {
-    const observerService = Components.classes['@mozilla.org/observer-service;1'].getService(Components.interfaces.nsIObserverService)
-    const loadObserver = function() {
-      dump('PMCID: Zotero loaded\n')
-      observerService.removeObserver(loadObserver, 'zotero-loaded')
-      resolve(true)
-    }
-    observerService.addObserver(loadObserver, 'zotero-loaded', false)
-  })
-}
-
 async function fetchPMCID() {
   const ZoteroPane = Zotero.getActiveZoteroPane()
-  const items = ZoteroPane.getSelectedItems().filter(item => !item.isNote() && !item.isAttachment())
+  const items = ZoteroPane.getSelectedItems()
+    .filter(item => !item.isNote() && !item.isAttachment())
+    .map(item => {
+      const req = {
+        item,
+        extra: item.getField('extra').split('\n'),
+      }
 
-  for (const item of items) {
-    const extra = item.getField('extra').split('\n')
+      for (const line of req.extra) {
+        const m = line.match(/^(PMC?ID):/i)
+        if (m) req[m[1].toLowerCase()] = true
+      }
 
-    const has = extra.reduce((acc, line) => {
-      const m = line.match(/^(PMC?ID):/i)
-      if (m) acc[m[1].toLowerCase()] = true
-      return acc
-    }, {})
+      if (!req.pmcid || !req.pmid) {
+        req.doi = getField(item, 'DOI')
 
-    if (has.pmcid && has.pmid) continue
+        if (!req.doi && (req.doi = getField(item, 'url'))) {
+          if (!req.doi.match(/^https?:\/\/doi.org\//i)) req.doi = ''
+        }
 
-    let doi = getField(item, 'DOI')
+        if (!req.doi && (req.doi = req.extra.find(line => line.match(/^DOI:/i)))) {
+          req.doi = req.doi.replace(/^DOI:\s*/i, '')
+        }
 
-    if (!doi && (doi = getField(item, 'url'))) {
-      if (!doi.match(/^https?:\/\/doi.org\//i)) doi = ''
-    }
+        req.doi = req.doi.replace(/^https?:\/\/doi.org\//i, '')
+      }
 
-    if (!doi && (doi = extra.find(line => line.match(/^DOI:/i)))) {
-      doi = doi.replace(/^DOI:\s*/i, '')
-    }
+      return req
+    })
+    .filter(item => item.doi)
 
-    doi = doi.replace(/^https?:\/\/doi.org\//i, '')
-
-    if (!doi) continue
+  const max = 200
+  for (const chunk of Array(Math.ceil(items.length/max)).fill().map((_, i) => items.slice(i*max, (i+1)*max))) {
+    const url = 'https://www.ncbi.nlm.nih.gov/pmc/utils/idconv/v1.0/?' + Object.entries({
+      tool: 'zotero-pmcid-fetcher',
+      email: 'email=emiliano.heyns@iris-advies.com',
+      ids: chunk.map(item => item.doi).join(','),
+      format: 'json',
+      idtype: 'doi',
+      versions: 'no',
+    }).map(([key, value]) => `${key}=${encodeURIComponent(value)}`).join('&')
 
     try {
-      const url = `https://www.ncbi.nlm.nih.gov/pmc/utils/idconv/v1.0/?tool=zotero-pmcid-fetcher&email=emiliano.heyns@iris-advies.com&ids=${encodeURIComponent(doi)}&format=json`
       const response = await fetch(url)
       if (!response.ok) throw new Error('Unexpected response from API')
       const data = await response.json()
       if (data.status !== 'ok') throw new Error(`data not OK: ${JSON.stringify(data)}`)
       if (!data.records) throw new Error(`no records: ${JSON.stringify(data)}`)
-      if (data.records.length !== 1) throw new Error(`${data.records.length} records: ${JSON.stringify(data)}`)
 
-      for (const id of ['pmcid', 'pmid']) {
-        if (!has[id] && data.records[0][id]) extra.push(`${id.toUpperCase()}: ${data.records[0][id]}`)
+      for (const item of chunk) {
+        const record = data.records.find(rec => rec.doi === item.doi)
+        if (!record) continue
+
+        for (const id of ['pmcid', 'pmid']) {
+          if (!item[id] && record[id]) {
+            item.extra.push(`${id.toUpperCase()}: ${record[id]}`)
+            item.save = true
+          }
+        }
+        
+        if (item.save) {
+          item.item.setField('extra', item.extra.join('\n'))
+          await item.item.saveTx()
+        }
       }
-
-      item.setField('extra', extra.join('\n'))
-      await item.saveTx()
-
     } catch (err) {
-      Zotero.debug(`could not fetch PMCID for ${doi}: ${err.message}`)
+      flash('Could not fetch PMCID', `Could not fetch PMCID for ${url}: ${err.message}`)
     }
   }
 }
 
 function updateMenu() {
-  dump('PMCID: update menu\n')
+  debug('update menu')
   const ZoteroPane = Zotero.getActiveZoteroPane()
-  const menu = ZoteroPane.document.getElementById('zotero-itemmenu')
-  let menuitem
 
-  if (!(menuitem = ZoteroPane.document.getElementById('fetch-pmcid'))) {
+  let menuitem = ZoteroPane.document.getElementById(classname)
+
+  if (!menuitem) {
+    debug('creating menu item')
+    const menu = ZoteroPane.document.getElementById('zotero-itemmenu')
     menuitem = ZoteroPane.document.createElement('menuitem')
-    menuitem.setAttribute('id', 'fetch-pmcid')
+    menuitem.setAttribute('id', classname)
     menuitem.setAttribute('label', 'Fetch PMCID keys')
     menuitem.classList.add(classname)
     menuitem.addEventListener('command', function() { fetchPMCID().catch(err => Zotero.debug(err.message)) }, false)
-
     menu.appendChild(menuitem)
   }
 
   const items = ZoteroPane.getSelectedItems().filter(item => !item.isNote() && !item.isAttachment())
   menuitem.hidden = !items.length
+  debug(`menu item ${menuitem.hidden ? 'hidden' : 'shown'}`)
 }
 
 function cleanup() {
   if (Zotero) {
+    debug('cleaning up')
     const ZoteroPane = Zotero.getActiveZoteroPane()
     ZoteroPane.document.getElementById('zotero-itemmenu').removeEventListener('popupshowing', updateMenu, false)
 
@@ -204,13 +256,13 @@ function install(_data, _reason) { }
 function startup(_data, _reason) {
   (async function() {
     cleanup()
-    dump('PMCID: started\n')
+    debug('started')
 
     await running()
     Zotero = Components.classes['@zotero.org/Zotero;1'].getService(Components.interfaces.nsISupports).wrappedJSObject
     await Zotero.Schema.schemaUpdatePromise
 
-    dump('PMCID: Zotero loaded\n')
+    debug('Zotero loaded')
 
     const ZoteroPane = Zotero.getActiveZoteroPane()
     const menu = ZoteroPane.document.getElementById('menu_HelpPopup')
@@ -220,7 +272,6 @@ function startup(_data, _reason) {
     menu.appendChild(menuitem)
 
     menuitem = ZoteroPane.document.createElement('menuitem')
-    menuitem.setAttribute('id', 'fetch-pmcid')
     menuitem.setAttribute('label', 'Fetch PMCID keys: send debug log')
     menuitem.classList.add(classname)
     menuitem.addEventListener('command', function() { debugLog().catch(err => Zotero.debug(err.message)) }, false)
@@ -228,11 +279,11 @@ function startup(_data, _reason) {
 
     ZoteroPane.document.getElementById('zotero-itemmenu').addEventListener('popupshowing', updateMenu, false)
 
-    dump('PMCID: menu installed\n')
+    debug('menu installed')
 
   })()
     .catch(err => {
-      dump(err.message + '\n')
+      debug(err.message)
     })
 }
 
