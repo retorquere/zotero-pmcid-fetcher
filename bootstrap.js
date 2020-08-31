@@ -224,6 +224,11 @@ function updateMenu() {
   if (!menuitem) {
     debug('creating menu item')
     const menu = ZoteroPane.document.getElementById('zotero-itemmenu')
+
+    menuitem = ZoteroPane.document.createElement('menuseparator')
+    menuitem.classList.add(classname)
+    menu.appendChild(menuitem)
+
     menuitem = ZoteroPane.document.createElement('menuitem')
     menuitem.setAttribute('id', classname)
     menuitem.setAttribute('label', 'Fetch PMCID keys')
