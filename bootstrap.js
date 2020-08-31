@@ -17,7 +17,9 @@ function clearTimeout(timer) {
 }
 */
 
-var Zotero = null
+let Zotero
+let notifier
+
 const classname = 'fetch-pmcid'
 
 function debug(msg) {
@@ -142,9 +144,8 @@ function getField(item, field) {
   }
 }
 
-async function fetchPMCID() {
-  const ZoteroPane = Zotero.getActiveZoteroPane()
-  const items = ZoteroPane.getSelectedItems()
+async function fetchPMCID(items) {
+  items = items
     .filter(item => !item.isNote() && !item.isAttachment())
     .map(item => {
       const req = {
@@ -233,7 +234,7 @@ function updateMenu() {
     menuitem.setAttribute('id', classname)
     menuitem.setAttribute('label', 'Fetch PMCID keys')
     menuitem.classList.add(classname)
-    menuitem.addEventListener('command', function() { fetchPMCID().catch(err => Zotero.debug(err.message)) }, false)
+    menuitem.addEventListener('command', function() { fetchPMCID(Zotero.getActiveZoteroPane().getSelectedItems()).catch(err => Zotero.debug(err.message)) }, false)
     menu.appendChild(menuitem)
   }
 
@@ -250,6 +251,11 @@ function cleanup() {
 
     for (const node of Array.from(ZoteroPane.document.getElementsByClassName(classname))) {
       node.parentElement.removeChild(node)
+    }
+
+    if (typeof notifier !== 'undefined') {
+      Zotero.Notifier.unregisterObserver(notifier)
+      notifier = undefined
     }
   }
 }
@@ -268,6 +274,24 @@ function startup(_data, _reason) {
     await Zotero.Schema.schemaUpdatePromise
 
     debug('Zotero loaded')
+
+    notifier = Zotero.Notifier.registerObserver({
+      async notify(action, _type, ids, _extraData) {
+        if (!Zotero.Prefs.get('pmcid.auto')) return
+
+        switch (action) {
+        case 'add':
+        case 'modify':
+          break
+        default:
+          return
+        }
+
+        const items = await Zotero.Items.getAsync(ids)
+        await Promise.all(items.map(item => item.loadAllData()))
+        await fetchPMCID(items)
+      }
+    }, ['item'], 'pmcid-fetcher')
 
     const ZoteroPane = Zotero.getActiveZoteroPane()
     const menu = ZoteroPane.document.getElementById('menu_HelpPopup')
