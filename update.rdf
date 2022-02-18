@@ -10,7 +10,7 @@
               <RDF:Description>
                 <em:id>zotero@chnm.gmu.edu</em:id>
                 <em:minVersion>5.0</em:minVersion>
-                <em:maxVersion>5.0.*</em:maxVersion>
+                <em:maxVersion>6.0.*</em:maxVersion>
                 <em:updateLink>https://github.com/retorquere/zotero-pmcid-fetcher/releases/download/v0.0.11/zotero-pmcid-fetcher-0.0.11.xpi</em:updateLink>
               </RDF:Description>
             </em:targetApplication>
@@ -18,7 +18,7 @@
               <RDF:Description>
                 <em:id>juris-m@juris-m.github.io</em:id>
                 <em:minVersion>5.0</em:minVersion>
-                <em:maxVersion>5.0.*</em:maxVersion>
+                <em:maxVersion>6.0.*</em:maxVersion>
                 <em:updateLink>https://github.com/retorquere/zotero-pmcid-fetcher/releases/download/v0.0.11/zotero-pmcid-fetcher-0.0.11.xpi</em:updateLink>
               </RDF:Description>
             </em:targetApplication>
