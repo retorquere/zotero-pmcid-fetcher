@@ -5,7 +5,7 @@
     <em:description>Zotero PMCID fetcher</em:description>
     <em:bootstrap>true</em:bootstrap>
     <em:id>pmcid-fetcher@iris-advies.com</em:id>
-    <em:version>0.0.11</em:version>
+    <em:version>0.0.12</em:version>
     <em:homepageURL>https://github.com/retorquere/zotero-pmcid-fetcher#readme</em:homepageURL>
     <em:creator>Emiliano Heyns</em:creator>
     <em:updateURL>https://github.com/retorquere/zotero-pmcid-fetcher/releases/download/release/update.rdf</em:updateURL>
