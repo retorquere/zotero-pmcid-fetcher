@@ -92,7 +92,7 @@ async function debugLog() {
   if (items.length) {
     response = await postLog('application/rdf+xml', await translate(items, '14763d24-8ba0-45df-8f52-b8d1108e7ac9')) // RDF
     if (!response) return
-    Zotero.debug(`items.rdf: ${JSON.stringify(response)}`)
+    debug(`items.rdf: ${JSON.stringify(response)}`)
     urls.push(response)
   }
 
@@ -102,10 +102,10 @@ async function debugLog() {
     Zotero.Debug.getConsoleViewerOutput()
   ).join('\n').trim())
   if (!response) return
-  Zotero.debug(`debug.txt: ${JSON.stringify(response)}`)
+  debug(`debug.txt: ${JSON.stringify(response)}`)
   urls.push(response)
 
-  Zotero.debug(`debug log: ${JSON.stringify(urls)}`)
+  debug(`debug log: ${JSON.stringify(urls)}`)
   Services.prompt.alert(null, 'PMCID Debug logs', urls.join('\n'))
 }
 
@@ -139,14 +139,14 @@ function getField(item, field) {
   try {
     return item.getField(field) || ''
   } catch (err) {
-    Zotero.debug(err.message)
+    debug(err.message)
     return ''
   }
 }
 
 async function fetchPMCID(items) {
   items = items
-    .filter(item => !item.isNote() && !item.isAttachment())
+    .filter(item => item.isRegularItem())
     .map(item => {
       const req = {
         item,
@@ -154,30 +154,30 @@ async function fetchPMCID(items) {
       }
 
       for (const line of req.extra) {
-        const m = line.match(/^(PMC?ID):/i)
-        if (m) req[m[1].toLowerCase()] = true
+        const m = line.match(/^(PMC?ID)\s*:\s*(.+)/i)
+        if (m) req[m[1].toLowerCase()] = m[2].trim()
       }
 
-      if (!req.pmcid || !req.pmid) {
-        req.doi = getField(item, 'DOI')
+      req.doi = getField(item, 'DOI')
 
-        if (!req.doi && (req.doi = getField(item, 'url'))) {
-          if (!req.doi.match(/^https?:\/\/doi.org\//i)) req.doi = ''
-        }
-
-        if (!req.doi && (req.doi = req.extra.find(line => line.match(/^DOI:/i)))) {
-          req.doi = req.doi.replace(/^DOI:\s*/i, '')
-        }
-
-        req.doi = req.doi.replace(/^https?:\/\/doi.org\//i, '')
+      if (!req.doi && (req.doi = getField(item, 'url'))) {
+        if (!req.doi.match(/^https?:\/\/doi.org\//i)) req.doi = ''
       }
+
+      if (!req.doi && (req.doi = req.extra.find(line => line.match(/^DOI:/i)))) {
+        req.doi = req.doi.replace(/^DOI:\s*/i, '')
+      }
+
+      req.doi = req.doi.replace(/^https?:\/\/doi.org\//i, '')
 
       return req
     })
-    .filter(item => item.doi)
+    .filter(item => item.doi || item.pmid || item.pmcid)
 
+  // resolve PMID/PMCID based on DOI
+  const incomplete = items.filter(item => item.doi && (!item.pmid || !item.pmcid))
   const max = 200
-  for (const chunk of Array(Math.ceil(items.length/max)).fill().map((_, i) => items.slice(i*max, (i+1)*max))) {
+  for (const chunk of Array(Math.ceil(incomplete.length/max)).fill().map((_, i) => incomplete.slice(i*max, (i+1)*max))) {
     const url = 'https://www.ncbi.nlm.nih.gov/pmc/utils/idconv/v1.0/?' + Object.entries({
       tool: 'zotero-pmcid-fetcher',
       email: 'email=emiliano.heyns@iris-advies.com',
@@ -195,23 +195,45 @@ async function fetchPMCID(items) {
       if (!data.records) throw new Error(`no records: ${JSON.stringify(data)}`)
 
       for (const item of chunk) {
-        const record = data.records.find(rec => rec.doi === item.doi)
-        if (!record) continue
+        const found = data.records.find(f => f.doi === item.doi)
+        if (!found) continue
 
         for (const id of ['pmcid', 'pmid']) {
-          if (!item[id] && record[id]) {
-            item.extra.push(`${id.toUpperCase()}: ${record[id]}`)
+          if (!item[id] && found[id]) {
+            item[id] = found[id]
+            item.extra.push(`${id.toUpperCase()}: ${found[id]}`)
             item.save = true
           }
-        }
-        
-        if (item.save) {
-          item.item.setField('extra', item.extra.join('\n'))
-          await item.item.saveTx()
         }
       }
     } catch (err) {
       flash('Could not fetch PMCID', `Could not fetch PMCID for ${url}: ${err.message}`)
+    }
+  }
+
+  // fetch tags
+  const parser = Components.classes['@mozilla.org/xmlextras/domparser;1'].createInstance(Components.interfaces.nsIDOMParser)
+  for (const item of items) {
+    if (!item.pmid && !item.pmcid) continue
+
+    try {
+      const doc = await fetch(`https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=PubMed&tool=Zotero&retmode=xml&rettype=citation&id=${item.pmid || item.pmcid}`).then(response => response.text()).then(text => parser.parseFromString(text, 'text/xml'))
+      for (const tag of [...doc.querySelectorAll('MeshHeadingList MeshHeading DescriptorName')]) {
+        item.item.addTag(tag.textContent)
+        item.save = true
+      }
+      for (const tag of [...doc.querySelectorAll('KeywordList Keyword')]) {
+        item.item.addTag(tag.textContent)
+        item.save = true
+      }
+    }
+    catch (err) {
+      flash('Could not fetch tags', `Could not fetch tags for ${item.pmid || item.pmcid}: ${err.message}`)
+    }
+
+    if (item.save) {
+      item.item.setField('extra', item.extra.join('\n'))
+      await item.item.saveTx()
     }
   }
 }
@@ -234,11 +256,11 @@ function updateMenu() {
     menuitem.setAttribute('id', classname)
     menuitem.setAttribute('label', 'Fetch PMCID keys')
     menuitem.classList.add(classname)
-    menuitem.addEventListener('command', function() { fetchPMCID(Zotero.getActiveZoteroPane().getSelectedItems()).catch(err => Zotero.debug(err.message)) }, false)
+    menuitem.addEventListener('command', function() { fetchPMCID(Zotero.getActiveZoteroPane().getSelectedItems()).catch(err => debug(err.message)) }, false)
     menu.appendChild(menuitem)
   }
 
-  const items = ZoteroPane.getSelectedItems().filter(item => !item.isNote() && !item.isAttachment())
+  const items = ZoteroPane.getSelectedItems().filter(item => item.isRegularItem())
   menuitem.hidden = !items.length
   debug(`menu item ${menuitem.hidden ? 'hidden' : 'shown'}`)
 }
