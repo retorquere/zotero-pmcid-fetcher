@@ -146,7 +146,7 @@ function getField(item, field) {
 
 async function fetchPMCID(items) {
   items = items
-    .filter(item => item.isRegularItem())
+    .filter(item => item.isRegularItem() && !item.isFeedItem)
     .map(item => {
       const req = {
         item,
@@ -172,11 +172,10 @@ async function fetchPMCID(items) {
 
       return req
     })
-    .filter(item => item.doi || item.pmid || item.pmcid)
+    .filter(item => item.doi && !(item.pmid && item.pmcid))
 
   // resolve PMID/PMCID based on DOI
-  const incomplete = items.filter(item => item.doi && (!item.pmid || !item.pmcid))
-  for (const item of incomplete) {
+  for (const item of items.filter(i => !i.pmid)) {
     const url = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?' + Object.entries({
       db: 'pubmed',
       term: item.doi,
@@ -197,11 +196,11 @@ async function fetchPMCID(items) {
       item.extra.push(`PMID: ${item.pmid}`)
       item.save = true
     } catch (err) {
-      flash('Could not fetch PMCID', `${err.message} Could not fetch PMCID for ${url}: ${err.message}`)
+      flash('Could not fetch PMID', `${err.message} Could not fetch PMID for ${url}: ${err.message}`)
     }
   }
 
-  const still_incomplete = incomplete.filter(item => !item.pmid || !item.pmcid)
+  const still_incomplete = items.filter(item => !item.pmid || !item.pmcid)
   const max = 200
   for (const chunk of Array(Math.ceil(still_incomplete.length/max)).fill().map((_, i) => still_incomplete.slice(i*max, (i+1)*max))) {
     const url = 'https://www.ncbi.nlm.nih.gov/pmc/utils/idconv/v1.0/?' + Object.entries({
@@ -233,7 +232,7 @@ async function fetchPMCID(items) {
         }
       }
     } catch (err) {
-      flash('Could not fetch PMCID', `Could not fetch PMCID for ${url}: ${err.message}`)
+      flash('Could not fetch PMID/PMCID', `Could not fetch PMID/PMCID for ${url}: ${err.message}`)
     }
   }
 
