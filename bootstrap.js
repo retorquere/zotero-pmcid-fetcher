@@ -176,8 +176,34 @@ async function fetchPMCID(items) {
 
   // resolve PMID/PMCID based on DOI
   const incomplete = items.filter(item => item.doi && (!item.pmid || !item.pmcid))
+  for (const item of incomplete) {
+    const url = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?' + Object.entries({
+      db: 'pubmed',
+      term: item.doi,
+      retmode: 'json',
+      field: 'doi',
+    }).map(([key, value]) => `${key}=${encodeURIComponent(value)}`).join('&')
+
+    try {
+      const response = await fetch(url)
+      if (!response.ok) throw new Error('Unexpected response from API')
+      const data = await response.json()
+      if (!data.esearchresult) throw new Error(`no esearchresult: ${JSON.stringify(data)}`)
+      if (!data.esearchresult.count) throw new Error(`no esearchresult.count: ${JSON.stringify(data)}`)
+      if (data.esearchresult.count !== '1') throw new Error(`esearchresult.count not 1: ${JSON.stringify(data)}`)
+      if (!data.esearchresult.idlist) throw new Error(`no esearchresult.idlist: ${JSON.stringify(data)}`)
+
+      item.pmid = data.esearchresult.idlist[0]
+      item.extra.push(`PMID: ${item.pmid}`)
+      item.save = true
+    } catch (err) {
+      flash('Could not fetch PMCID', `${err.message} Could not fetch PMCID for ${url}: ${err.message}`)
+    }
+  }
+
+  const still_incomplete = incomplete.filter(item => !item.pmid || !item.pmcid)
   const max = 200
-  for (const chunk of Array(Math.ceil(incomplete.length/max)).fill().map((_, i) => incomplete.slice(i*max, (i+1)*max))) {
+  for (const chunk of Array(Math.ceil(still_incomplete.length/max)).fill().map((_, i) => still_incomplete.slice(i*max, (i+1)*max))) {
     const url = 'https://www.ncbi.nlm.nih.gov/pmc/utils/idconv/v1.0/?' + Object.entries({
       tool: 'zotero-pmcid-fetcher',
       email: 'email=emiliano.heyns@iris-advies.com',
