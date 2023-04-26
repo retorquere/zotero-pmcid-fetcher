@@ -53,7 +53,7 @@ function translate(items, translator) { // returns a promise
     if (success) {
       deferred.resolve(obj ? obj.string : '')
     } else {
-      Zotero.debug(`translate with ${translator} failed`, { message: 'undefined' })
+      debug(`translate with ${translator} failed`, { message: 'undefined' })
       deferred.resolve('')
     }
   })
@@ -168,7 +168,7 @@ async function fetchPMCID(items) {
         req.doi = req.doi.replace(/^DOI:\s*/i, '')
       }
 
-      req.doi = req.doi.replace(/^https?:\/\/doi.org\//i, '')
+      req.doi = (req.doi || '').replace(/^https?:\/\/doi.org\//i, '')
 
       return req
     })
@@ -182,6 +182,7 @@ async function fetchPMCID(items) {
       retmode: 'json',
       field: 'doi',
     }).map(([key, value]) => `${key}=${encodeURIComponent(value)}`).join('&')
+    debug(url)
 
     try {
       const response = await fetch(url)
@@ -211,6 +212,7 @@ async function fetchPMCID(items) {
       idtype: 'doi',
       versions: 'no',
     }).map(([key, value]) => `${key}=${encodeURIComponent(value)}`).join('&')
+    debug(url)
 
     try {
       const response = await fetch(url)
@@ -350,7 +352,7 @@ function startup(_data, _reason) {
     menuitem = ZoteroPane.document.createElement('menuitem')
     menuitem.setAttribute('label', 'Fetch PMCID keys: send debug log')
     menuitem.classList.add(classname)
-    menuitem.addEventListener('command', function() { debugLog().catch(err => Zotero.debug(err.message)) }, false)
+    menuitem.addEventListener('command', function() { debugLog().catch(err => debug(err.message)) }, false)
     menu.appendChild(menuitem)
 
     ZoteroPane.document.getElementById('zotero-itemmenu').addEventListener('popupshowing', updateMenu, false)
