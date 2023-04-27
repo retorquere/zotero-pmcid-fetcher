@@ -1,0 +1,19 @@
+name: 'Manage issues and nag about debug logs'
+
+on:
+  issues:
+    types: [opened, edited, closed, reopened]
+  issue_comment:
+    types: [created, edited, closed]
+
+jobs:
+  nag:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: retorquere/label-gun@main
+        with:
+          token: ${{ github.token }}
+          label.exempt: question
+          label.awaiting: awaiting-user-feedback
+          label.reopened: reopened
+          message.no-close: Thanks for the feedback; there's no way you could have known, but @retorquere prefers to keep bugreports/enhancements open as a reminder to merge the changes into a new release.
