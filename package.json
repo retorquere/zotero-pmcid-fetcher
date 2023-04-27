@@ -6,7 +6,7 @@
   "scripts": {
     "lint": "eslint bootstrap.js",
     "test": "make && node release.js --issue",
-    "start": "make",
+    "build": "make",
     "version": "make && git add *.rdf",
     "postversion": "git push --follow-tags && node release.js",
     "release-it": "dotenv release-it"
