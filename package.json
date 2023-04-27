@@ -9,7 +9,7 @@
     "build": "make",
     "version": "make && git add *.rdf",
     "postversion": "git push --follow-tags && node release.js",
-    "release-it": "dotenv release-it"
+    "release": "node release.js"
   },
   "repository": {
     "type": "git",
