@@ -144,6 +144,17 @@ function getField(item, field) {
   }
 }
 
+function errorlist(list) {
+  if (!list) return ''
+
+  let error = ''
+  for (const [k, v] of Object.entries(list)) {
+    if (Array.isArray(v) && !v.length) continue
+    error += `${k}: ${JSON.stringify(v)}\n`
+  }
+  return error
+}
+
 async function fetchPMCID(items) {
   items = items
     .filter(item => item.isRegularItem() && !item.isFeedItem)
@@ -189,7 +200,8 @@ async function fetchPMCID(items) {
       if (!response.ok) throw { doi: item.doi, error: `NCBI returned ${response.status} (${response.statusText})`, data: {} }
 
       const data = await response.json()
-      if (!data.esearchresult) throw { doi: item.doi, error: 'no esearchresult', data }
+      if (!data.esearchresult) throw { doi: item.doi, error: 'no search result', data }
+      if (errorlist(data.esearchresult.errorlist)) throw { doi: item.doi, error: errorlist(data.esearchresult.errorlist), data }
       if (!data.esearchresult.count) throw { doi: item.doi, error: 'zero results', data }
       if (data.esearchresult.count !== '1') throw { doi: item.doi, error: `expected 1 result, got ${data.esearchresult.count}`, data }
       if (!data.esearchresult.idlist) throw { doi: item.doi, error: 'no IDs returned', data }
