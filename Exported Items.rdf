@@ -1,0 +1,390 @@
+<rdf:RDF
+ xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+ xmlns:z="http://www.zotero.org/namespaces/export#"
+ xmlns:dcterms="http://purl.org/dc/terms/"
+ xmlns:bib="http://purl.org/net/biblio#"
+ xmlns:foaf="http://xmlns.com/foaf/0.1/"
+ xmlns:link="http://purl.org/rss/1.0/modules/link/"
+ xmlns:dc="http://purl.org/dc/elements/1.1/"
+ xmlns:prism="http://prismstandard.org/namespaces/1.2/basic/">
+    <bib:Article rdf:about="http://link.springer.com/10.1007/s11926-012-0290-2">
+        <z:itemType>journalArticle</z:itemType>
+        <dcterms:isPartOf rdf:resource="urn:issn:1523-3774,%201534-6307"/>
+        <bib:authors>
+            <rdf:Seq>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Silva</foaf:surname>
+                        <foaf:givenName>Francisco</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Cisternas</foaf:surname>
+                        <foaf:givenName>Marcela</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Specks</foaf:surname>
+                        <foaf:givenName>Ulrich</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+            </rdf:Seq>
+        </bib:authors>
+        <link:link rdf:resource="#item_1419"/>
+        <dc:title>TNF-α Blocker Therapy and Solid Malignancy Risk in ANCA-Associated Vasculitis</dc:title>
+        <dcterms:abstract>ANCA-associated vasculitides (AAV) are small vessel systemic vasculitis syndromes associated with the potential for high morbidity and mortality. This group includes granulomatosis with polyangiitis (Wegener´s, GPA), microscopic polyangiitis (MPA), and eosinophilic granulomatosis with polyangiitis (Churg-Strauss, EGPA). The standard treatment consists of a combination of glucocorticoids and potent immunosuppressant drugs. These have broad mechanisms of action as well as important adverse effects. Efforts have been made to investigate novel agents with better-defined and narrower mechanisms of action, such as biologics, including TNF-α blockers. Etanercept, a well-known TNF-α blocker evaluated for GPA in the Wegener’s Granulomatosis Etanercept Trial (WGET), was associated with an increase in the development of solid malignancies in comparison to placebo during that trial period. A 5-year follow-up after the WGET trial showed a sustained increase in incidence of solid malignancies, but this could no longer be solely attributed to etanercept exposure. These studies raised concerns about the use of the family of TNF-α blockers in AAV. Here, we review the evidence about the association between therapeutic inhibition of tumor necrosis factor (TNF-α) by etanercept and other TNF-α blockers with the development of solid malignancies in GPA and other AAV.</dcterms:abstract>
+        <dc:date>12/2012</dc:date>
+        <z:language>en</z:language>
+        <z:libraryCatalog>DOI.org (Crossref)</z:libraryCatalog>
+        <dc:identifier>
+            <dcterms:URI>
+                <rdf:value>http://link.springer.com/10.1007/s11926-012-0290-2</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+        <dcterms:dateSubmitted>2023-04-07 20:11:29</dcterms:dateSubmitted>
+        <bib:pages>501-508</bib:pages>
+    </bib:Article>
+    <bib:Journal rdf:about="urn:issn:1523-3774,%201534-6307">
+        <prism:volume>14</prism:volume>
+        <dc:title>Current Rheumatology Reports</dc:title>
+        <dc:identifier>DOI 10.1007/s11926-012-0290-2</dc:identifier>
+        <prism:number>6</prism:number>
+        <dcterms:alternative>Curr Rheumatol Rep</dcterms:alternative>
+        <dc:identifier>ISSN 1523-3774, 1534-6307</dc:identifier>
+    </bib:Journal>
+    <z:Attachment rdf:about="#item_1419">
+        <z:itemType>attachment</z:itemType>
+        <dc:title>Silva et al. - 2012 - TNF-α Blocker Therapy and Solid Malignancy Risk in.pdf</dc:title>
+        <link:type>application/pdf</link:type>
+    </z:Attachment>
+    <bib:Article rdf:about="https://www.atsjournals.org/doi/10.1164/rccm.200607-995OC">
+        <z:itemType>journalArticle</z:itemType>
+        <dcterms:isPartOf rdf:resource="urn:issn:1073-449X,%201535-4970"/>
+        <bib:authors>
+            <rdf:Seq>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Rennard</foaf:surname>
+                        <foaf:givenName>Stephen I.</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Fogarty</foaf:surname>
+                        <foaf:givenName>Charles</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Kelsen</foaf:surname>
+                        <foaf:givenName>Steven</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Long</foaf:surname>
+                        <foaf:givenName>William</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Ramsdell</foaf:surname>
+                        <foaf:givenName>Joe</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Allison</foaf:surname>
+                        <foaf:givenName>James</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Mahler</foaf:surname>
+                        <foaf:givenName>Donald</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Saadeh</foaf:surname>
+                        <foaf:givenName>Constantine</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Siler</foaf:surname>
+                        <foaf:givenName>Thomas</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Snell</foaf:surname>
+                        <foaf:givenName>Phillip</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Korenblat</foaf:surname>
+                        <foaf:givenName>Phillip</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Smith</foaf:surname>
+                        <foaf:givenName>William</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Kaye</foaf:surname>
+                        <foaf:givenName>Mitchell</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Mandel</foaf:surname>
+                        <foaf:givenName>Michael</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Andrews</foaf:surname>
+                        <foaf:givenName>Charles</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Prabhu</foaf:surname>
+                        <foaf:givenName>Rachakonda</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Donohue</foaf:surname>
+                        <foaf:givenName>James F.</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Watt</foaf:surname>
+                        <foaf:givenName>Rosemary</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Lo</foaf:surname>
+                        <foaf:givenName>Kim Hung</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Schlenker-Herceg</foaf:surname>
+                        <foaf:givenName>Rozsa</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Barnathan</foaf:surname>
+                        <foaf:givenName>Elliot S.</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Murray</foaf:surname>
+                        <foaf:givenName>John</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+            </rdf:Seq>
+        </bib:authors>
+        <link:link rdf:resource="#item_1423"/>
+        <dc:title>The Safety and Efficacy of Infliximab in Moderate to Severe Chronic Obstructive Pulmonary Disease</dc:title>
+        <dcterms:abstract>Objectives: To determine if infliximab, an anti–TNF-␣ antibody, results in clinical benefit and has an acceptable safety profile in patients with moderate to severe COPD.
+Methods: In a multicenter, randomized, double-blind, placebocontrolled, parallel-group, dose-finding study, subjects with moderate to severe COPD received infliximab (3 mg/kg [n ϭ 78] or 5 mg/kg [n ϭ 79]) or placebo (n ϭ 77) at Weeks 0, 2, 6, 12, 18, and 24. Efficacy, health status, and safety were assessed through Week 44.
+Measurements and Main Results: Infliximab was generally well tolerated, but showed no treatment benefit as measured by the primary endpoint, Chronic Respiratory Questionnaire total score. Similarly, there was no change in secondary measures, including prebronchodilator FEV1, 6-min walk distance, SF-36 physical score, transition dyspnea index, or moderate-to-severe COPD exacerbations. Post hoc analysis revealed that subjects who were younger or cachectic showed improvement in the 6-min walk distance. Malignancies were diagnosed during the study in 9 of 157 infliximab-treated subjects versus 1 of 77 placebo-treated subjects. No opportunistic infections were observed, and there were no differences in the occurrence of antibiotic-requiring infections, although the incidence of pneumonia was higher in infliximab-treated subjects. No infection-related mortality was observed. Higher proportions of infliximab-treated subjects discontinued the study agent due to adverse events (20–27%) than did placebo-treated subjects (9%).
+Conclusions: Subjects with moderate to severe COPD did not benefit from treatment with infliximab. Although not statistically significant, more cases of cancer and pneumonia were observed in the infliximab-treated subjects. The impact of infliximab on malignancy risk in patients with COPD needs to be further elucidated.</dcterms:abstract>
+        <dc:date>2007-05-01</dc:date>
+        <z:language>en</z:language>
+        <z:libraryCatalog>DOI.org (Crossref)</z:libraryCatalog>
+        <dc:identifier>
+            <dcterms:URI>
+                <rdf:value>https://www.atsjournals.org/doi/10.1164/rccm.200607-995OC</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+        <dcterms:dateSubmitted>2023-04-07 20:11:37</dcterms:dateSubmitted>
+        <bib:pages>926-934</bib:pages>
+    </bib:Article>
+    <bib:Journal rdf:about="urn:issn:1073-449X,%201535-4970">
+        <prism:volume>175</prism:volume>
+        <dc:title>American Journal of Respiratory and Critical Care Medicine</dc:title>
+        <dc:identifier>DOI 10.1164/rccm.200607-995OC</dc:identifier>
+        <prism:number>9</prism:number>
+        <dcterms:alternative>Am J Respir Crit Care Med</dcterms:alternative>
+        <dc:identifier>ISSN 1073-449X, 1535-4970</dc:identifier>
+    </bib:Journal>
+    <z:Attachment rdf:about="#item_1423">
+        <z:itemType>attachment</z:itemType>
+        <dc:title>Rennard et al. - 2007 - The Safety and Efficacy of Infliximab in Moderate .pdf</dc:title>
+        <link:type>application/pdf</link:type>
+    </z:Attachment>
+    <bib:Article rdf:about="https://www.tandfonline.com/doi/full/10.1080/14740338.2017.1298743">
+        <z:itemType>journalArticle</z:itemType>
+        <dcterms:isPartOf rdf:resource="urn:issn:1474-0338,%201744-764X"/>
+        <bib:authors>
+            <rdf:Seq>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Fiorino</foaf:surname>
+                        <foaf:givenName>Gionata</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Bonovas</foaf:surname>
+                        <foaf:givenName>Stefanos</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Cicerone</foaf:surname>
+                        <foaf:givenName>Clelia</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Allocca</foaf:surname>
+                        <foaf:givenName>Mariangela</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Furfaro</foaf:surname>
+                        <foaf:givenName>Federica</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Correale</foaf:surname>
+                        <foaf:givenName>Carmen</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Danese</foaf:surname>
+                        <foaf:givenName>Silvio</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+            </rdf:Seq>
+        </bib:authors>
+        <link:link rdf:resource="#item_1447"/>
+        <dc:title>The safety of biological pharmacotherapy for the treatment of ulcerative colitis</dc:title>
+        <dcterms:abstract>Introduction: Biological agents are effective in ulcerative colitis (UC). Currently, 3 anti-TNF agents (infliximab, adalimumab, and golimumab) and 1 anti-integrin agent (vedolizumab) are approved for the treatment of UC. The mechanism of action of biologic agents can also give rise to several side effects, some even serious. It remains uncertain to what extent biologic treatments may be associated with an increased rate of infections, malignancies and other adverse events Areas covered: Our aim is to review the relevant data available in the literature and briefly summarize the safety profile of biological therapy in UC. We performed a literature search using the OVID, MEDLINE, PUBMED and EMBASE databases. Also other relevant sources of safety data were also used. Expert opinion: All biological agents currently used in UC are relatively safe. Accurate prevention measures and screening prior to start such therapies, and regular surveillance programs are strongly recommend to minimize any risk of infections, malignancy and other adverse events related to the use of monoclonal antibodies in UC patients.</dcterms:abstract>
+        <dc:date>2017-04-03</dc:date>
+        <z:language>en</z:language>
+        <z:libraryCatalog>DOI.org (Crossref)</z:libraryCatalog>
+        <dc:identifier>
+            <dcterms:URI>
+                <rdf:value>https://www.tandfonline.com/doi/full/10.1080/14740338.2017.1298743</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+        <dcterms:dateSubmitted>2023-04-07 20:12:14</dcterms:dateSubmitted>
+        <bib:pages>437-443</bib:pages>
+    </bib:Article>
+    <bib:Journal rdf:about="urn:issn:1474-0338,%201744-764X">
+        <prism:volume>16</prism:volume>
+        <dc:title>Expert Opinion on Drug Safety</dc:title>
+        <dc:identifier>DOI 10.1080/14740338.2017.1298743</dc:identifier>
+        <prism:number>4</prism:number>
+        <dcterms:alternative>Expert Opinion on Drug Safety</dcterms:alternative>
+        <dc:identifier>ISSN 1474-0338, 1744-764X</dc:identifier>
+    </bib:Journal>
+    <z:Attachment rdf:about="#item_1447">
+        <z:itemType>attachment</z:itemType>
+        <dc:title>Fiorino et al. - 2017 - The safety of biological pharmacotherapy for the t.pdf</dc:title>
+        <link:type>application/pdf</link:type>
+    </z:Attachment>
+    <bib:Article rdf:about="https://www.frontiersin.org/articles/10.3389/fimmu.2020.545413/full">
+        <z:itemType>journalArticle</z:itemType>
+        <dcterms:isPartOf rdf:resource="urn:issn:1664-3224"/>
+        <bib:authors>
+            <rdf:Seq>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Gerke</foaf:surname>
+                        <foaf:givenName>Alicia K.</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+            </rdf:Seq>
+        </bib:authors>
+        <link:link rdf:resource="#item_1449"/>
+        <dc:title>Treatment of Sarcoidosis: A Multidisciplinary Approach</dc:title>
+        <dcterms:abstract>Sarcoidosis is a systemic disease of unknown etiology deﬁned by the presence of noncaseating granulomatous inﬂammation that can cause organ damage and diminished quality of life. Treatment is indicated to protect organ function and decrease symptomatic burden. Current treatment options focus on interruption of granuloma formation and propagation. Clinical trials guiding evidence for treatment are lacking due to the rarity of disease, heterogeneous clinical course, and lack of prognostic biomarkers, all of which contribute to difﬁculty in clinical trial design and implementation. In this review, a multidisciplinary treatment approach is summarized, addressing immunuosuppressive drugs, managing complications of chronic granulomatous inﬂammation, and assessing treatment toxicity. Discovery of new therapies will depend on research into pathogenesis of antigen presentation and granulomatous inﬂammation. Future treatment approaches may also include personalized decisions based on pharmacogenomics and sarcoidosis phenotype, as well as patient-centered approaches to manage immunosuppression, symptom control, and treatment of comorbid conditions.</dcterms:abstract>
+        <dc:date>2020-11-19</dc:date>
+        <z:language>en</z:language>
+        <z:shortTitle>Treatment of Sarcoidosis</z:shortTitle>
+        <z:libraryCatalog>DOI.org (Crossref)</z:libraryCatalog>
+        <dc:identifier>
+            <dcterms:URI>
+                <rdf:value>https://www.frontiersin.org/articles/10.3389/fimmu.2020.545413/full</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+        <dcterms:dateSubmitted>2023-04-07 20:12:17</dcterms:dateSubmitted>
+        <bib:pages>545413</bib:pages>
+    </bib:Article>
+    <bib:Journal rdf:about="urn:issn:1664-3224">
+        <prism:volume>11</prism:volume>
+        <dc:title>Frontiers in Immunology</dc:title>
+        <dc:identifier>DOI 10.3389/fimmu.2020.545413</dc:identifier>
+        <dcterms:alternative>Front. Immunol.</dcterms:alternative>
+        <dc:identifier>ISSN 1664-3224</dc:identifier>
+    </bib:Journal>
+    <z:Attachment rdf:about="#item_1449">
+        <z:itemType>attachment</z:itemType>
+        <dc:title>Gerke - 2020 - Treatment of Sarcoidosis A Multidisciplinary Appr.pdf</dc:title>
+        <link:type>application/pdf</link:type>
+    </z:Attachment>
+    <bib:Article rdf:about="#item_1487">
+        <z:itemType>journalArticle</z:itemType>
+        <dcterms:isPartOf>
+           <bib:Journal></bib:Journal>
+        </dcterms:isPartOf>
+        <bib:authors>
+            <rdf:Seq>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Gerriets</foaf:surname>
+                        <foaf:givenName>Valerie</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Bansal</foaf:surname>
+                        <foaf:givenName>Pankaj</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Goyal</foaf:surname>
+                        <foaf:givenName>Amandeep</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Khaddour</foaf:surname>
+                        <foaf:givenName>Karam</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+            </rdf:Seq>
+        </bib:authors>
+        <link:link rdf:resource="#item_1450"/>
+        <dc:title>Tumor Necrosis Factor Inhibitors</dc:title>
+        <z:language>en</z:language>
+        <z:libraryCatalog>Zotero</z:libraryCatalog>
+    </bib:Article>
+    <z:Attachment rdf:about="#item_1450">
+        <z:itemType>attachment</z:itemType>
+        <dc:title>Gerriets et al. - Tumor Necrosis Factor Inhibitors.pdf</dc:title>
+        <link:type>application/pdf</link:type>
+    </z:Attachment>
+</rdf:RDF>
