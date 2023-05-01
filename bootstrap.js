@@ -186,28 +186,31 @@ async function fetchPMCID(items) {
 
     try {
       const response = await fetch(url)
-      if (!response.ok) throw new Error('Unexpected response from API')
+      if (!response.ok) throw { doi: item.doi, error: `NCBI returned ${response.status} (${response.statusText})`, data: {} }
+
       const data = await response.json()
-      if (!data.esearchresult) throw new Error(`no esearchresult: ${JSON.stringify(data)}`)
-      if (!data.esearchresult.count) throw new Error(`no esearchresult.count: ${JSON.stringify(data)}`)
-      if (data.esearchresult.count !== '1') throw new Error(`esearchresult.count not 1: ${JSON.stringify(data)}`)
-      if (!data.esearchresult.idlist) throw new Error(`no esearchresult.idlist: ${JSON.stringify(data)}`)
+      if (!data.esearchresult) throw { doi: item.doi, error: 'no esearchresult', data }
+      if (!data.esearchresult.count) throw { doi: item.doi, error: 'zero results', data }
+      if (data.esearchresult.count !== '1') throw { doi: item.doi, error: `expected 1 result, got ${data.esearchresult.count}`, data }
+      if (!data.esearchresult.idlist) throw { doi: item.doi, error: 'no IDs returned', data }
 
       item.pmid = data.esearchresult.idlist[0]
       item.extra.push(`PMID: ${item.pmid}`)
       item.save = true
     } catch (err) {
-      flash('Could not fetch PMID', `${err.message} Could not fetch PMID for ${url}: ${err.message}`)
+      flash('Could not resolve DOI', `Failed to resolve PMID for ${err.doi}: ${err.error}`)
+      debug(`Could not fetch resolve for ${url}: ${err.error}: ${JSON.stringify(err.data)}`)
     }
   }
 
   const still_incomplete = items.filter(item => !item.pmid || !item.pmcid)
   const max = 200
   for (const chunk of Array(Math.ceil(still_incomplete.length/max)).fill().map((_, i) => still_incomplete.slice(i*max, (i+1)*max))) {
+    const dois = chunk.map(item => item.doi).join(',')
     const url = 'https://www.ncbi.nlm.nih.gov/pmc/utils/idconv/v1.0/?' + Object.entries({
       tool: 'zotero-pmcid-fetcher',
       email: 'email=emiliano.heyns@iris-advies.com',
-      ids: chunk.map(item => item.doi).join(','),
+      ids: dois,
       format: 'json',
       idtype: 'doi',
       versions: 'no',
@@ -216,10 +219,11 @@ async function fetchPMCID(items) {
 
     try {
       const response = await fetch(url)
-      if (!response.ok) throw new Error('Unexpected response from API')
+      if (!response.ok) throw { dois, error: `NCBI returned ${response.status} (${response.statusText})`, data: {} }
+
       const data = await response.json()
-      if (data.status !== 'ok') throw new Error(`data not OK: ${JSON.stringify(data)}`)
-      if (!data.records) throw new Error(`no records: ${JSON.stringify(data)}`)
+      if (data.status !== 'ok') throw { dois, error: `NCBI returned status ${data.status}`, data }
+      if (!data.records) throw { dois, error: 'NCBI returned no records', data }
 
       for (const item of chunk) {
         const found = data.records.find(f => f.doi === item.doi)
@@ -234,7 +238,8 @@ async function fetchPMCID(items) {
         }
       }
     } catch (err) {
-      flash('Could not fetch PMID/PMCID', `Could not fetch PMID/PMCID for ${url}: ${err.message}`)
+      flash('Could not convert DOI to PMID/PMCID', `Failed to convert ${err.dois}: ${err.error}`)
+      debug(`Could not convert DOI to PMID/PMCID for ${url}: ${err.error}: ${JSON.stringify(err.data)}`)
     }
   }
 
