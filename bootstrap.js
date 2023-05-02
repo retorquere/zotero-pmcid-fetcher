@@ -2,23 +2,74 @@
 
 /* global Components, Services, dump */
 
+var Zotero // eslint-disable-line no-var
+var notifier // eslint-disable-line no-var
+var ChromeUtils
+
 Components.utils.importGlobalProperties(['fetch'])
 Components.utils.import('resource://gre/modules/Services.jsm')
 
+/*
 function setTimeout(callback, ms) {
-  const timer = Components.classes['@mozilla.org/timer;1'].createInstance(Components.interfaces.nsITimer)
-  timer.initWithCallback({notify: callback}, ms, Components.interfaces.nsITimer.TYPE_ONE_SHOT)
-  return timer
+  return Zotero.getMainWindow().setTimeout(callback, ms)
 }
+*/
+function setInterval(callback, ms) {
+  return Zotero.getMainWindow().setInterval(callback, ms)
+}
+function clearInterval(id) {
+  return Zotero.getMainWindow().clearInterval(id)
+}
+
+class Deferred {
+  constructor() {
+    this.promise = new Promise((resolve, reject) => {
+      this.resolve = resolve
+      this.reject = reject
+    })
+    for (const op of ['then', 'catch']) {
+      this[op] = this.promise[op].bind(this.promise)
+    }
+  }
+}
+
+class Throttle {
+  constructor() {
+    this.queue = []
+    this.jobs = new WeakMap
+    this.job = 0
+
+    this.interval = setInterval(() => {
+      const deferred = this.queue.shift()
+      if (deferred) {
+        debug(`${(new Date).toISOString()} starting ${this.jobs.get(deferred)}`)
+        this.jobs.delete(deferred)
+        deferred.resolve()
+      }
+    }, 400) // NCBI limits to 3 requests per second
+  }
+
+  slot() {
+    const deferred = new Deferred
+    this.jobs.set(deferred, ++this.job)
+    debug(`${(new Date).toISOString()} scheduling ${this.jobs.get(deferred)}`)
+    this.queue.push(deferred)
+    return deferred.promise
+  }
+
+  shutdown() {
+    clearInterval(this.id)
+    this.queue = null
+    this.jobs = null
+  }
+}
+var throttle
 
 /*
 function clearTimeout(timer) {
   timer.cancel()
 }
 */
-
-let Zotero
-let notifier
 
 const classname = 'fetch-pmcid'
 
@@ -109,32 +160,6 @@ async function debugLog() {
   Services.prompt.alert(null, 'PMCID Debug logs', urls.join('\n'))
 }
 
-async function running() {
-  const prefs = Components.classes['@mozilla.org/preferences-service;1'].getService(Components.interfaces.nsIPrefBranch)
-  const port = prefs.getIntPref('extensions.zotero.httpServer.port')
-  debug(`trying fetch on http://127.0.0.1:${port}`)
-  if (port) {
-    try {
-      await Promise.race([fetch(`http://127.0.0.1:${port}`), new Promise((resolve, reject) => { setTimeout(function() { reject(new Error('request timed out')) }, 1000) })])
-      return true
-    } catch (err) {
-      debug(`startup fetch failed: ${err.message}`)
-    }
-  }
-
-  // assume not running yet
-  debug('no running Zotero found, awaiting zotero-loaded')
-  return new Promise(function(resolve, _reject) {
-    const observerService = Components.classes['@mozilla.org/observer-service;1'].getService(Components.interfaces.nsIObserverService)
-    const loadObserver = function() {
-      debug('Zotero loaded')
-      observerService.removeObserver(loadObserver, 'zotero-loaded')
-      resolve(true)
-    }
-    observerService.addObserver(loadObserver, 'zotero-loaded', false)
-  })
-}
-
 function getField(item, field) {
   try {
     return item.getField(field) || ''
@@ -196,6 +221,7 @@ async function fetchPMCID(items) {
     debug(url)
 
     try {
+      await throttle.slot()
       const response = await fetch(url)
       if (!response.ok) throw { doi: item.doi, error: `NCBI returned ${response.status} (${response.statusText})`, data: {} }
 
@@ -230,6 +256,7 @@ async function fetchPMCID(items) {
     debug(url)
 
     try {
+      await throttle.slot()
       const response = await fetch(url)
       if (!response.ok) throw { dois, error: `NCBI returned ${response.status} (${response.statusText})`, data: {} }
 
@@ -261,6 +288,7 @@ async function fetchPMCID(items) {
     if (!item.pmid && !item.pmcid) continue
 
     try {
+      await throttle.slot()
       const doc = await fetch(`https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=PubMed&tool=Zotero&retmode=xml&rettype=citation&id=${item.pmid || item.pmcid}`).then(response => response.text()).then(text => parser.parseFromString(text, 'text/xml'))
       for (const tag of [...doc.querySelectorAll('MeshHeadingList MeshHeading DescriptorName')]) {
         item.item.addTag(tag.textContent)
@@ -326,6 +354,48 @@ function cleanup() {
   }
 }
 
+async function waitForZotero() {
+  if (typeof Zotero != 'undefined') {
+    await Zotero.initializationPromise
+    return
+  }
+
+  if (typeof Services == 'undefined') {
+    var { Services } = ChromeUtils.import('resource://gre/modules/Services.jsm') // eslint-disable-line no-var
+  }
+  const windows = Services.wm.getEnumerator('navigator:browser')
+  let found = false
+  while (windows.hasMoreElements()) {
+    const win = windows.getNext()
+    if (win.Zotero) {
+      Zotero = win.Zotero
+      found = true
+      break
+    }
+  }
+  if (!found) {
+    await new Promise(resolve => {
+      const listener = {
+        onOpenWindow: aWindow => {
+          // Wait for the window to finish loading
+          const domWindow = aWindow.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+            .getInterface(Components.interfaces.nsIDOMWindowInternal || Components.interfaces.nsIDOMWindow)
+          domWindow.addEventListener('load', () => {
+            domWindow.removeEventListener('load', arguments.callee, false) // eslint-disable-line no-caller
+            if (domWindow.Zotero) {
+              Services.wm.removeListener(listener)
+              Zotero = domWindow.Zotero
+              resolve(undefined)
+            }
+          }, false)
+        },
+      }
+      Services.wm.addListener(listener)
+    })
+  }
+  await Zotero.initializationPromise
+}
+
 // --- //
 
 function install(_data, _reason) { }
@@ -335,9 +405,8 @@ function startup(_data, _reason) {
     cleanup()
     debug('started')
 
-    await running()
-    Zotero = Components.classes['@zotero.org/Zotero;1'].getService(Components.interfaces.nsISupports).wrappedJSObject
-    await Zotero.Schema.schemaUpdatePromise
+    await waitForZotero()
+    throttle = new Throttle
 
     debug('Zotero loaded')
 
@@ -384,6 +453,7 @@ function startup(_data, _reason) {
 
 function shutdown(_data, _reason) {
   cleanup()
+  if (throttle) throttle.shutdown()
 }
 
 function uninstall(_data, _reason) { }
