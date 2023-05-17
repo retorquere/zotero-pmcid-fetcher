@@ -1,5 +1,3 @@
-'use strict'
-
 /* global Components, Services, dump */
 
 var Zotero // eslint-disable-line no-var
