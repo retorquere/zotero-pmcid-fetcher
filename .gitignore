@@ -3,3 +3,4 @@ start.sh
 *.xpi
 .env
 .DS_Store
+bootstrap.js

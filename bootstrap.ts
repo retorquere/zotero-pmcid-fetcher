@@ -1,4 +1,6 @@
-/* global Components, Services, dump */
+declare const Components: any
+declare const Services: any
+declare const dump: (msg: string) => void
 
 var Zotero // eslint-disable-line no-var
 var notifier // eslint-disable-line no-var
@@ -20,6 +22,10 @@ function clearInterval(id) {
 }
 
 class Deferred {
+  public promise: Promise<void>
+  public resolve: (data?: any) => void
+  public reject: (err: Error) => void
+
   constructor() {
     this.promise = new Promise((resolve, reject) => {
       this.resolve = resolve
@@ -32,12 +38,17 @@ class Deferred {
 }
 
 class Throttle {
-  constructor() {
-    this.queue = []
-    this.jobs = new WeakMap
-    this.job = 0
+  private jobs: WeakMap<Deferred, number> = new WeakMap
+  private job = 0
+  private queue = []
+  private interval: any
 
+  constructor() {
     this.interval = setInterval(() => {
+      if (!this.queue) {
+        clearInterval(this.interval)
+        return
+      }
       const deferred = this.queue.shift()
       if (deferred) {
         debug(`${(new Date).toISOString()} starting ${this.jobs.get(deferred)}`)
@@ -56,7 +67,7 @@ class Throttle {
   }
 
   shutdown() {
-    clearInterval(this.id)
+    clearInterval(this.interval)
     this.queue = null
     this.jobs = null
   }
@@ -102,7 +113,7 @@ function translate(items, translator) { // returns a promise
     if (success) {
       deferred.resolve(obj ? obj.string : '')
     } else {
-      debug(`translate with ${translator} failed`, { message: 'undefined' })
+      debug(`translate with ${translator} failed`)
       deferred.resolve('')
     }
   })
@@ -120,12 +131,12 @@ async function postLog(contentType, body) {
     })
     if (!response.ok) throw new Error(response.statusText)
 
-    response = await response.text()
-    debug(`got: ${response}`)
-    response = JSON.parse(response)
-    if (!response.success) throw new Error(response.message)
+    const text = await response.text()
+    debug(`got: ${text}`)
+    const data = await response.json()
+    if (!data.success) throw new Error(data.message)
 
-    return response.link
+    return data.link
   } catch (err) {
     Services.prompt.alert(null, 'PMCID Debug logs', err.message)
     return false
@@ -185,6 +196,7 @@ async function fetchPMCID(items) {
       const req = {
         item,
         extra: item.getField('extra').split('\n'),
+        doi: '',
       }
 
       for (const line of req.extra) {
@@ -225,6 +237,7 @@ async function fetchPMCID(items) {
 
       const data = await response.json()
       if (!data.esearchresult) throw { doi: item.doi, error: 'no search result', data }
+      if (data.esearchresult.errorlist?.phrasesnotfound?.length) throw { doi: item.doi, error: `NCBI does not have information on ${item.doi}`, data }
       if (errorlist(data.esearchresult.errorlist)) throw { doi: item.doi, error: errorlist(data.esearchresult.errorlist), data }
       if (!data.esearchresult.count) throw { doi: item.doi, error: 'zero results', data }
       if (data.esearchresult.count !== '1') throw { doi: item.doi, error: `expected 1 result, got ${data.esearchresult.count}`, data }
@@ -241,7 +254,7 @@ async function fetchPMCID(items) {
 
   const still_incomplete = items.filter(item => !item.pmid || !item.pmcid)
   const max = 200
-  for (const chunk of Array(Math.ceil(still_incomplete.length/max)).fill().map((_, i) => still_incomplete.slice(i*max, (i+1)*max))) {
+  for (const chunk of Array(Math.ceil(still_incomplete.length/max)).fill(undefined).map((_, i) => still_incomplete.slice(i*max, (i+1)*max))) {
     const dois = chunk.map(item => item.doi).join(',')
     const url = 'https://www.ncbi.nlm.nih.gov/pmc/utils/idconv/v1.0/?' + Object.entries({
       tool: 'zotero-pmcid-fetcher',
@@ -341,7 +354,7 @@ function cleanup() {
     const ZoteroPane = Zotero.getActiveZoteroPane()
     ZoteroPane.document.getElementById('zotero-itemmenu').removeEventListener('popupshowing', updateMenu, false)
 
-    for (const node of Array.from(ZoteroPane.document.getElementsByClassName(classname))) {
+    for (const node of Array.from(ZoteroPane.document.getElementsByClassName(classname)) as Element[]) {
       node.parentElement.removeChild(node)
     }
 
@@ -398,8 +411,8 @@ async function waitForZotero() {
 
 function install(_data, _reason) { }
 
-function startup(_data, _reason) {
-  (async function() {
+async function startup(_data, _reason) {
+  try {
     cleanup()
     debug('started')
 
@@ -442,11 +455,10 @@ function startup(_data, _reason) {
     ZoteroPane.document.getElementById('zotero-itemmenu').addEventListener('popupshowing', updateMenu, false)
 
     debug('menu installed')
-
-  })()
-    .catch(err => {
-      debug(err.message)
-    })
+  }
+  catch (err) {
+    debug(err.message)
+  }
 }
 
 function shutdown(_data, _reason) {
