@@ -1,22 +1,25 @@
 {
   "compilerOptions": {
-    "allowUnreachableCode": false,
-    "noUnusedLocals": true,
-    "isolatedModules": true,
-    "esModuleInterop": true,
-    "noUnusedParameters": false,
     "importHelpers": true,
     "target": "es2017",
     "disableSizeLimit": true,
     "module": "commonjs",
     "noImplicitAny": false,
+    "esModuleInterop": true,
     "removeComments": false,
-    "preserveConstEnums": true,
+    "preserveConstEnums": false,
     "sourceMap": false,
     "downlevelIteration": true,
-    "resolveJsonModule": true,
-    "moduleResolution": "node",
-    "skipLibCheck": true,
-    "lib": [ "es2017", "dom", "dom.iterable", "webworker" ]
-  }
+    "lib": [ "es2017", "dom", "dom.iterable" ],
+    "typeRoots": [
+      "./typings",
+      "./node_modules/@types"
+    ]
+  },
+  "include": [ "*.ts", "chrome/content", "typing", "node_modules/zotero-types" ],
+  "exclude": [
+    "node_modules",
+    "**/*.spec.ts",
+    "typings"
+  ]
 }
