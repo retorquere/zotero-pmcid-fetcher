@@ -4,3 +4,6 @@ start.sh
 .env
 .DS_Store
 bootstrap.js
+.eslintcache
+build
+gen
