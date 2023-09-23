@@ -9,7 +9,7 @@
     "postbuild": "zotero-plugin-zipup build zotero-pmcid-fetcher",
     "release": "zotero-plugin-release",
     "postversion": "git push --follow-tags",
-    "start": "zotero-start"
+    "start": "osascript -e 'quit app \"Zotero\"' && zotero-start"
   },
   "repository": {
     "type": "git",

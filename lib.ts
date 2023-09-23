@@ -12,8 +12,12 @@ function debug(msg: string) {
 
 debug('loading...')
 
-if (Zotero.platformMajorVersion < 102) {
-  Cu.importGlobalProperties(['fetch'])
+const is7 = Zotero.platformMajorVersion >= 102
+if (is7) Cu.importGlobalProperties(['fetch'])
+
+function create(doc: Document, name: string): HTMLElement {
+  const elt: HTMLElement = is7 ? (doc as any).createXULElement(name) : doc.createElementNS('http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul', name)
+  return elt
 }
 
 type Trampoline = Function & { disabled?: boolean }
@@ -188,11 +192,11 @@ Zotero.PMCIDFetcher = new class {
         debug('creating menu item')
         const menu = this.document.getElementById('zotero-itemmenu')
 
-        menuitem = this.document.createElement('menuseparator')
+        menuitem = create(this.document as Document, 'menuseparator')
         menuitem.classList.add(classname)
         menu.appendChild(menuitem)
 
-        menuitem = this.document.createElement('menuitem')
+        menuitem = create(this.document as Document, 'menuitem')
         menuitem.setAttribute('id', classname)
         menuitem.setAttribute('label', 'Fetch PMCID keys')
         menuitem.classList.add(classname)
@@ -339,7 +343,7 @@ Zotero.PMCIDFetcher = new class {
     }
 
     // fetch tags
-    const parser = Components.classes['@mozilla.org/xmlextras/domparser;1'].createInstance(Components.interfaces.nsIDOMParser)
+    const parser = is7 ? new DOMParser : Components.classes['@mozilla.org/xmlextras/domparser;1'].createInstance(Components.interfaces.nsIDOMParser)
     for (const item of items) {
       if (!item.pmid && !item.pmcid) continue
 
