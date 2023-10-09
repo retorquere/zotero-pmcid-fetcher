@@ -347,22 +347,24 @@ Zotero.PMCIDFetcher = new class {
     for (const item of items) {
       if (!item.pmid && !item.pmcid) continue
 
-      try {
-        await this.throttle.slot()
-        const url = `https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=PubMed&tool=Zotero&retmode=xml&rettype=citation&id=${item.pmid || item.pmcid}`
-        const text: string = await (await fetch(url)).text()
-        const doc: Document = parser.parseFromString(text, 'text/xml')
-        for (const tag of [...doc.querySelectorAll('MeshHeadingList MeshHeading DescriptorName')]) {
-          item.item.addTag(tag.textContent)
-          item.save = true
+      if (Zotero.Prefs.get('pmcid.tags') !== false) {
+        try {
+          await this.throttle.slot()
+          const url = `https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=PubMed&tool=Zotero&retmode=xml&rettype=citation&id=${item.pmid || item.pmcid}`
+          const text: string = await (await fetch(url)).text()
+          const doc: Document = parser.parseFromString(text, 'text/xml')
+          for (const tag of [...doc.querySelectorAll('MeshHeadingList MeshHeading DescriptorName')]) {
+            item.item.addTag(tag.textContent)
+            item.save = true
+          }
+          for (const tag of [...doc.querySelectorAll('KeywordList Keyword')]) {
+            item.item.addTag(tag.textContent)
+            item.save = true
+          }
         }
-        for (const tag of [...doc.querySelectorAll('KeywordList Keyword')]) {
-          item.item.addTag(tag.textContent)
-          item.save = true
+        catch (err) {
+          flash('Could not fetch tags', `Could not fetch tags for ${item.pmid || item.pmcid}: ${err.message}`)
         }
-      }
-      catch (err) {
-        flash('Could not fetch tags', `Could not fetch tags for ${item.pmid || item.pmcid}: ${err.message}`)
       }
 
       if (item.save) {
