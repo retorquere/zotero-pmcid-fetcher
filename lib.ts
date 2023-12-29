@@ -6,6 +6,8 @@ declare const Components: any
 declare const Cu: any
 declare var Zotero: any // eslint-disable-line no-var
 
+const ps = Components.classes['@mozilla.org/embedcomp/prompt-service;1'].getService(Components.interfaces.nsIPromptService)
+
 function debug(msg: string) {
   Zotero.debug(`PMCID: ${msg}`)
 }
@@ -347,7 +349,13 @@ Zotero.PMCIDFetcher = new class {
     for (const item of items) {
       if (!item.pmid && !item.pmcid) continue
 
-      if (Zotero.Prefs.get('pmcid.tags') !== false) {
+      let tags = Zotero.Prefs.get('pmcid.tags')
+      if (typeof tags !== 'boolean') {
+        const remember = { value: true }
+        tags = ps.confirmCheck('Retrieve PMCID tags', 'Retrieve PMCID tags as keywords?', "Don't ask again", remember)
+        if (remember.value) Zotero.Prefs.set('pmcid.tags', tags)
+      }
+      if (tags) {
         try {
           await this.throttle.slot()
           const url = `https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=PubMed&tool=Zotero&retmode=xml&rettype=citation&id=${item.pmid || item.pmcid}`
