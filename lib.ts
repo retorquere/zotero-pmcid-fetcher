@@ -16,6 +16,7 @@ debug('loading...')
 
 const is7 = Zotero.platformMajorVersion >= 102
 if (is7) Cu.importGlobalProperties(['fetch'])
+Cu.importGlobalProperties(['Blob', 'FormData'])
 
 function create(doc: Document, name: string): HTMLElement {
   const elt: HTMLElement = is7 ? (doc as any).createXULElement(name) : doc.createElementNS('http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul', name)
