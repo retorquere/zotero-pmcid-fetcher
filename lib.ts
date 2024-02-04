@@ -353,7 +353,7 @@ Zotero.PMCIDFetcher = new class {
       let tags = Zotero.Prefs.get('pmcid.tags')
       if (typeof tags !== 'boolean') {
         const remember = { value: true }
-        tags = ps.confirmCheck('Retrieve PMCID tags', 'Retrieve PMCID tags as keywords?', "Don't ask again", remember)
+        tags = ps.confirmCheck(null, 'Retrieve PMCID tags', 'Retrieve PMCID tags as keywords?', "Don't ask again", remember)
         if (remember.value) Zotero.Prefs.set('pmcid.tags', tags)
       }
       if (tags) {
