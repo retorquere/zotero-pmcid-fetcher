@@ -6,7 +6,9 @@ declare const Components: any
 declare const Cu: any
 declare var Zotero: any // eslint-disable-line no-var
 
-const ps = Components.classes['@mozilla.org/embedcomp/prompt-service;1'].getService(Components.interfaces.nsIPromptService)
+Components.utils.import('resource://gre/modules/Services.jsm')
+
+import { PromptService } from './prompt'
 
 function debug(msg: string) {
   Zotero.debug(`PMCID: ${msg}`)
@@ -353,7 +355,7 @@ Zotero.PMCIDFetcher = new class {
       let tags = Zotero.Prefs.get('pmcid.tags')
       if (typeof tags !== 'boolean') {
         const remember = { value: true }
-        tags = ps.confirmCheck(null, 'Retrieve PMCID tags', 'Retrieve PMCID tags as keywords?', "Don't ask again", remember)
+        tags = PromptService.confirmCheck(null, 'Retrieve PMCID tags', 'Retrieve PMCID tags as keywords?', "Don't ask again", remember)
         if (remember.value) Zotero.Prefs.set('pmcid.tags', tags)
       }
       if (tags) {
