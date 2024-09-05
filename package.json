@@ -3,7 +3,7 @@
   "version": "0.0.30",
   "description": "PMCID fetcher",
   "scripts": {
-    "lint": "eslint . --ext .ts --cache --cache-location .eslintcache/",
+    "lint": "eslint . --cache --cache-location .eslintcache/",
     "prebuild": "npm run lint",
     "build": "tsc --noEmit && node esbuild.js",
     "postbuild": "zotero-plugin-zipup build zotero-pmcid-fetcher",
@@ -44,5 +44,9 @@
     "updateLink": "https://github.com/retorquere/zotero-pmcid-fetcher/releases/download/v{version}/zotero-pmcid-fetcher-{version}.xpi",
     "releaseURL": "https://github.com/retorquere/zotero-pmcid-fetcher/releases/download/release/",
     "bootstrapped": true
+  },
+  "devDependencies": {
+    "@stylistic/eslint-plugin-js": "^2.7.2",
+    "@stylistic/eslint-plugin-ts": "^2.7.2"
   }
 }

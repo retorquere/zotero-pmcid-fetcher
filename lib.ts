@@ -25,13 +25,13 @@ function create(doc: Document, name: string): HTMLElement {
   return elt
 }
 
-type Trampoline = Function & { disabled?: boolean }
+type Trampoline = Function & { disabled?: boolean } // eslint-disable-line @typescript-eslint/ban-types
 const trampolines: Trampoline[] = []
 
-function patch(object: any, method: string, patcher: (f: Function) => Function, mem?: Trampoline[]): void {
+function patch(object: any, method: string, patcher: (f: Function) => Function, mem?: Trampoline[]): void { // eslint-disable-line @typescript-eslint/ban-types
   if (typeof object[method] !== 'function') throw new Error(`monkey-patch: ${method} is not a function`)
 
-  const orig: Function = object[method]
+  const orig: Function = object[method] // eslint-disable-line @typescript-eslint/ban-types
   const patched = patcher(orig)
   object[method] = function trampoline() {
     return (trampoline as Trampoline).disabled ? orig.apply(this, arguments) : patched.apply(this, arguments)

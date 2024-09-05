@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/ban-types, prefer-rest-params, @typescript-eslint/no-unnecessary-type-assertion, no-throw-literal, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unused-vars, @typescript-eslint/no-empty-function, prefer-arrow/prefer-arrow-functions */
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/ban-types, prefer-rest-params, @typescript-eslint/no-unnecessary-type-assertion, no-throw-literal, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unused-vars, @typescript-eslint/no-empty-function */
 
 declare const Components: any
 declare var Services: any // eslint-disable-line no-var
