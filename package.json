@@ -1,6 +1,6 @@
 {
   "name": "zotero-pmcid-fetcher",
-  "version": "0.0.30",
+  "version": "0.0.31",
   "description": "PMCID fetcher",
   "scripts": {
     "lint": "eslint . --cache --cache-location .eslintcache/",
