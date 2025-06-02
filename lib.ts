@@ -18,31 +18,6 @@ debug('loading...')
 
 Cu.importGlobalProperties(['fetch', 'Blob', 'FormData'])
 
-function create(doc: Document, name: string): HTMLElement {
-  const elt: HTMLElement = (doc as any).createXULElement(name)
-  return elt
-}
-
-type Trampoline = Function & { disabled?: boolean } // eslint-disable-line @typescript-eslint/ban-types
-const trampolines: Trampoline[] = []
-
-function patch(object: any, method: string, patcher: (f: Function) => Function, mem?: Trampoline[]): void { // eslint-disable-line @typescript-eslint/ban-types
-  if (typeof object[method] !== 'function') throw new Error(`monkey-patch: ${method} is not a function`)
-
-  const orig: Function = object[method] // eslint-disable-line @typescript-eslint/ban-types
-  const patched = patcher(orig)
-  object[method] = function trampoline() {
-    return (trampoline as Trampoline).disabled ? orig.apply(this, arguments) : patched.apply(this, arguments)
-  }
-  trampolines.push(object[method] as Trampoline)
-  if (mem) mem.push(object[method] as Trampoline)
-}
-function unpatch(functions?: Trampoline[]) {
-  for (const trampoline of (functions || trampolines)) {
-    trampoline.disabled = true
-  }
-}
-
 class Deferred {
   public promise: Promise<void>
   public resolve: (data?: any) => void
@@ -146,13 +121,11 @@ function errorlist(list?: Record<string, string>) {
   return error
 }
 
-const classname = 'fetch-pmcid'
-
 function selectedItems(): any[] {
   return Zotero.getActiveZoteroPane().getSelectedItems().filter(item => item.isRegularItem() && !item.isFeedItem) as any[]
 }
 
-Zotero.PMCIDFetcher = new class {
+export class PMCIDFetcher {
   notifier: number
   throttle: Throttle
 
@@ -190,14 +163,7 @@ Zotero.PMCIDFetcher = new class {
   }
 
   shutdown() {
-    unpatch()
-
     this.throttle?.shutdown()
-    const doc: Document = Zotero.getActiveZoteroPane().document
-
-    for (const node of Array.from(doc.querySelectorAll(`.${classname}`)) as Element[]) {
-      node.remove()
-    }
 
     if (typeof this.notifier !== 'undefined') {
       Zotero.Notifier.unregisterObserver(this.notifier)
@@ -211,7 +177,7 @@ Zotero.PMCIDFetcher = new class {
     if (!doc.querySelector('#pmcid-fetcher-menuItem')) {
       Menu.register('item', {
         id: 'pmcid-fetcher-menuItem',
-        tag: 'menu-item',
+        tag: 'menuitem',
         label: 'Fetch PMCID keys',
         oncommand: 'Zotero.PMCIDFetcher.fetchPMCID()',
       })
@@ -279,7 +245,7 @@ Zotero.PMCIDFetcher = new class {
         const response = await fetch(url)
         if (!response.ok) throw { doi: item.doi, error: `NCBI returned ${response.status} (${response.statusText})`, data: {} }
 
-        const data = await response.json()
+        const data: any = await response.json()
         if (!data.esearchresult) throw { doi: item.doi, error: 'no search result', data }
         if (data.esearchresult.errorlist?.phrasesnotfound?.length) throw { doi: item.doi, error: `NCBI does not have information on ${item.doi}`, data }
         let error: string
@@ -319,7 +285,7 @@ Zotero.PMCIDFetcher = new class {
         const response = await fetch(url)
         if (!response.ok) throw { dois, error: `NCBI returned ${response.status} (${response.statusText})`, data: {} }
 
-        const data = await response.json()
+        const data: any = await response.json()
         if (data.status !== 'ok') throw { dois, error: `NCBI returned status ${data.status}`, data }
         if (!data.records) throw { dois, error: 'NCBI returned no records', data }
 
@@ -379,4 +345,5 @@ Zotero.PMCIDFetcher = new class {
       }
     }
   }
-}()
+}
+Zotero.PMCIDFetcher = new PMCIDFetcher()
