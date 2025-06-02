@@ -13,7 +13,7 @@ jobs:
       with:
         node-version: 20.x
     - name: install node dependencies
-      run: npm install
+      run: npm install --no-package-lock
     - name: build
       run: npm run build
     - name: release
