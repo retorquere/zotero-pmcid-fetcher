@@ -31,8 +31,8 @@
     "ts-node": "^10.9.2",
     "typescript": "^5.8.3",
     "zotero-plugin": "^5.0.18",
-    "zotero-plugin-toolkit": "^4.1.2",
-    "zotero-types": "^3.1.9"
+    "zotero-plugin-toolkit": "^5.0.0",
+    "zotero-types": "^4.0.0"
   },
   "xpi": {
     "name": "PMCID fetcher for Zotero",
