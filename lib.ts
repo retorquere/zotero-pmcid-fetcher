@@ -174,6 +174,7 @@ export class PMCIDFetcher {
   public onMainWindowLoad({ window }: { window: Window }): void {
     const doc = window.document
 
+    debug(`17: installing menu ${!!doc.querySelector('#pmcid-fetcher-menuItem')}`)
     if (!doc.querySelector('#pmcid-fetcher-menuItem')) {
       Menu.register('item', {
         id: 'pmcid-fetcher-menuItem',

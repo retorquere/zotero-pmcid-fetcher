@@ -14,13 +14,14 @@ function debug(msg) {
   else {
     dump(`${msg}\n`)
   }
+  dump(`${msg}\n`)
 }
 
 export function install(_data, _reason) {}
 export function uninstall(_data, _reason) {}
 
 export async function startup({ resourceURI, rootURI = resourceURI.spec }) {
-  debug('waiting for zotero')
+  debug('bootstrap startup')
   Services.scriptloader.loadSubScript(`${rootURI}lib.js`, { Zotero })
   debug('zotero loaded, lib loaded')
   Zotero.PMCIDFetcher.startup()
@@ -29,13 +30,16 @@ export async function startup({ resourceURI, rootURI = resourceURI.spec }) {
 }
 
 export function shutdown(_data, _reason) {
+  debug('bootstrap shutdown')
   Zotero.PMCIDFetcher?.shutdown()
 }
 
 export function onMainWindowLoad({ window }) {
+  debug('bootstrap onMainWindowLoad')
   Zotero.PMCIDFetcher?.onMainWindowLoad({ window })
 }
 
 export function onMainWindowUnload() {
+  debug('bootstrap onMainWindowUnload')
   Zotero.PMCIDFetcher?.onMainWindowUnload()
 }
