@@ -2,8 +2,6 @@ declare const Components: any
 declare const Cu: any
 declare var Zotero: any // eslint-disable-line no-var
 
-Components.utils.import('resource://gre/modules/Services.jsm')
-
 import { MenuManager } from 'zotero-plugin-toolkit'
 import { DebugLog } from 'zotero-plugin/debug-log'
 const Menu = new MenuManager()

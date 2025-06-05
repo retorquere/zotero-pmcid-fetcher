@@ -4,8 +4,6 @@ declare const Components: any
 declare var Services: any // eslint-disable-line no-var
 declare const dump: (msg: string) => void
 
-Components.utils.import('resource://gre/modules/Services.jsm')
-
 function debug(msg) {
   msg = `PMCID: (bootstrap) ${msg}`
   if (Zotero) {
