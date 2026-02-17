@@ -196,6 +196,15 @@ export class PMCIDFetcher {
     }
   }
 
+  store(item, field, value) {
+    if (Zotero.ItemFields.isValidForType(Zotero.ItemFields.getID(field), item.item.itemTypeID)) {
+      item.item.setField(field, value)
+    }
+    else {
+      item.extra.push(`${field}: ${value}`)
+    }
+  }
+
   async $fetchPMCID(items) {
     items = (items || selectedItems())
       .filter(item => item.isRegularItem() && !item.isFeedItem)
@@ -203,22 +212,21 @@ export class PMCIDFetcher {
         const req = {
           item,
           extra: item.getField('extra').split('\n'),
-          doi: '',
+          doi: getField(item, 'DOI'),
+          pmid: getField(item, 'PMID'),
+          pmcid: getField(item, 'PMCID'),
         }
 
         for (const line of req.extra) {
-          const m = line.match(/^(PMC?ID)\s*:\s*(.+)/i)
-          if (m) req[m[1].toLowerCase()] = m[2].trim()
+          const m = line.match(/^(DOI|PMC?ID)\s*:\s*(.+)/i)
+          if (m) {
+            const field = m[1].toLowerCase()
+            if (!req[field]) req[field] = m[2].trim()
+          }
         }
-
-        req.doi = getField(item, 'DOI')
 
         if (!req.doi && (req.doi = getField(item, 'url'))) {
           if (!req.doi.match(/^https?:\/\/doi.org\//i)) req.doi = ''
-        }
-
-        if (!req.doi && (req.doi = req.extra.find(line => line.match(/^DOI:/i)))) {
-          req.doi = req.doi.replace(/^DOI:\s*/i, '')
         }
 
         req.doi = (req.doi || '').replace(/^https?:\/\/doi.org\//i, '')
@@ -254,7 +262,7 @@ export class PMCIDFetcher {
         if (!data.esearchresult.idlist) throw { doi: item.doi, error: 'no IDs returned', data }
 
         item.pmid = data.esearchresult.idlist[0]
-        item.extra.push(`PMID: ${item.pmid}`)
+        this.store(item, 'PMID', item.pmid)
         item.save = true
       }
       catch (err) {
@@ -295,7 +303,7 @@ export class PMCIDFetcher {
           for (const id of ['pmcid', 'pmid']) {
             if (!item[id] && found[id]) {
               item[id] = found[id]
-              item.extra.push(`${id.toUpperCase()}: ${found[id]}`)
+              this.store(item, id.toUpperCase(), found[id])
               item.save = true
             }
           }

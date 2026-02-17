@@ -1,12 +1,11 @@
-const path = require('path')
-const fs = require('fs')
-const esbuild = require('esbuild')
-const rmrf = require('rimraf')
-rmrf.sync('gen')
+import path from 'path'
+import fs from 'fs'
+import esbuild from 'esbuild'
 
-require('zotero-plugin/copy-assets')
-require('zotero-plugin/rdf')
-require('zotero-plugin/version')
+import 'zotero-plugin/make-dirs'
+
+import 'zotero-plugin/make-manifest'
+import 'zotero-plugin/make-version'
 
 function js(src) {
   return src.replace(/[.]ts$/, '.js')

@@ -1,21 +1,20 @@
 {
   "compilerOptions": {
-    "noUnusedLocals": true,
-    "declaration": false,
-    "allowUnreachableCode": false,
     "importHelpers": true,
     "target": "es2017",
     "disableSizeLimit": true,
-    "module": "commonjs",
     "noImplicitAny": false,
+    "esModuleInterop": true,
     "removeComments": false,
     "preserveConstEnums": false,
     "sourceMap": false,
     "downlevelIteration": true,
-    "lib": [ "es2019", "dom", "ES2021.WeakRef" ],
-    "types": [ "node" ],
-    "typeRoots": [ "./node_modules/@types" ],
-    "skipDefaultLibCheck": true,
+    "skipLibCheck": true,
+    "lib": [ "es2017", "dom", "dom.iterable", "webworker", "ES2021.WeakRef" ],
+    "typeRoots": [ "node_modules", "./typings", "./node_modules/@types" ],
+    "module": "preserve",
+    "moduleResolution": "bundler",
+    "types": ["zotero-types"]
   },
   "include": [ "*.ts", "*.d.ts", "node_modules/zotero-types" ],
   "exclude": [
