@@ -42,7 +42,9 @@
     "name": "PMCID fetcher for Zotero",
     "updateLink": "https://github.com/retorquere/zotero-pmcid-fetcher/releases/download/v{version}/zotero-pmcid-fetcher-{version}.xpi",
     "releaseURL": "https://github.com/retorquere/zotero-pmcid-fetcher/releases/download/release/",
-    "bootstrapped": true
+    "bootstrapped": true,
+    "minVersion": "8.0.1",
+    "maxVersion": "9.*"
   },
   "devDependencies": {
     "dprint": "^0.52.0"
