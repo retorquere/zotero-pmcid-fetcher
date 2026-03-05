@@ -2,11 +2,11 @@ declare const Components: any
 declare const Cu: any
 declare var Zotero: any // eslint-disable-line no-var
 
-import { MenuManager } from 'zotero-plugin-toolkit'
 import { DebugLog } from 'zotero-plugin/debug-log'
-const Menu = new MenuManager()
 
 import { PromptService } from './prompt'
+
+const pluginID = 'zotero-pmcid-fetcher@iris-advies.com'
 
 function debug(msg: string) {
   Zotero.debug(`PMCID: ${msg}`)
@@ -172,19 +172,24 @@ export class PMCIDFetcher {
   public onMainWindowLoad({ window }: { window: Window }): void {
     const doc = window.document
 
-    debug(`17: installing menu ${!!doc.querySelector('#pmcid-fetcher-menuItem')}`)
-    if (!doc.querySelector('#pmcid-fetcher-menuItem')) {
-      Menu.register('item', {
-        id: 'pmcid-fetcher-menuItem',
-        tag: 'menuitem',
-        label: 'Fetch PMCID keys',
-        oncommand: 'Zotero.PMCIDFetcher.fetchPMCID()',
-      })
-    }
+    Zotero.MenuManager.registerMenu({
+      menuID: `${pluginID}-menu-item`,
+      pluginID,
+      target: 'main/library/item',
+      menus: [{
+        menuType: 'menuitem',
+        onShowing: (event: Event, context: any) => {
+          context.setVisible(!!Zotero.getActiveZoteroPane()?.getSelectedItems().find(item => item.isRegularItem() && !item.isFeedItem))
+          context.menuElem.setAttribute('label', 'Fetch PMCID keys')
+        },
+        onCommand: (_event, _context) => {
+          Zotero.PMCIDFetcher.fetchPMCID()
+        },
+      }],
+    })
   }
 
   public onMainWindowUnload(): void {
-    Menu.unregisterAll()
   }
 
   async fetchPMCID(items?) {
