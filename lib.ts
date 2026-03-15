@@ -99,13 +99,23 @@ function flash(title, body = null, timeout = 8) {
 }
 
 function getField(item, field) {
+  if (!item.isRegularItem() || item.isFeedItem) return ''
+
   try {
-    return item.getField(field) || ''
+    const value = item.getField(field) || ''
+    if (value) return value
   }
-  catch (err) {
-    debug(`${err}`)
-    return ''
+  catch {}
+
+  const re = new RegExp(`^${field}\s*:(.*)`, 'i')
+  let m: RegExpMatchArray
+  for (const line of (item.getField('extra') || '').split('\n')) {
+    if (m = line.match(re)) {
+      const v = m[1].trim()
+      if (v) return v
+    }
   }
+  return ''
 }
 
 function errorlist(list?: Record<string, string>) {
@@ -187,6 +197,17 @@ export class PMCIDFetcher {
         },
       }],
     })
+
+    for (const column of ['PMID', 'PMCID']) {
+      Zotero.ItemTreeManager.registerColumn({
+        dataKey: column,
+        label: column,
+        pluginID,
+        dataProvider: (item, _dataKey) => {
+          return getField(item, column)
+        },
+      })
+    }
   }
 
   public onMainWindowUnload(): void {
