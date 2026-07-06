@@ -28,14 +28,14 @@
   },
   "homepage": "https://github.com/retorquere/zotero-pmcid-fetcher",
   "dependencies": {
-    "esbuild": "^0.27.4",
+    "esbuild": "^0.28.1",
     "mkdirp": "^3.0.1",
     "npm-run-all": "^4.1.5",
     "rimraf": "^6.1.3",
     "ts-node": "^10.9.2",
-    "typescript": "^5.9.3",
+    "typescript": "^6.0.3",
     "zotero-plugin": "^9.0.1",
-    "zotero-plugin-toolkit": "^5.1.2",
+    "zotero-plugin-toolkit": "^5.1.4",
     "zotero-types": "^4.1.2"
   },
   "xpi": {
@@ -47,6 +47,6 @@
     "maxVersion": "9.*"
   },
   "devDependencies": {
-    "dprint": "^0.52.0"
+    "dprint": "^0.55.1"
   }
 }
