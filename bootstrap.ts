@@ -20,7 +20,7 @@ export function uninstall(_data, _reason) {}
 
 export async function startup({ resourceURI, rootURI = resourceURI.spec }) {
   debug('bootstrap startup')
-  Services.scriptloader.loadSubScript(`${rootURI}lib.js`, { Zotero })
+  Services.scriptloader.loadSubScript(`${rootURI}lib.js`, { rootURI, Zotero })
   debug('zotero loaded, lib loaded')
   Zotero.PMCIDFetcher.startup()
   Zotero.PMCIDFetcher.onMainWindowLoad({ window: Zotero.getMainWindow() })

@@ -1,0 +1,19 @@
+<vbox
+  xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  xmlns:html="http://www.w3.org/1999/xhtml"
+>
+  <groupbox>
+    <label><html:h2>PMCID fetch</html:h2></label>
+    <html:div>
+      <html:label for="pmcid-resolve-bundle-size">Resolve error popup bundle size</html:label>
+      <html:input
+        id="pmcid-resolve-bundle-size"
+        type="number"
+        min="0"
+        step="1"
+        preference="extensions.zotero.pmcid.resolve.bundleSize"
+      />
+      <description>Set to 0 to disable resolve popup error messages.</description>
+    </html:div>
+  </groupbox>
+</vbox>

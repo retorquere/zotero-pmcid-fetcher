@@ -1,6 +1,7 @@
 declare const Components: any
 declare const Cu: any
 declare var Zotero: any // eslint-disable-line no-var
+declare var rootURI: string // eslint-disable-line no-var
 
 import { DebugLog } from 'zotero-plugin/debug-log'
 
@@ -155,6 +156,19 @@ export class PMCIDFetcher {
     this.throttle = new Throttle()
     debug('throttler installed')
 
+    const bundleSize = Zotero.Prefs.get('pmcid.resolve.bundleSize')
+    if (typeof bundleSize !== 'number' || !Number.isFinite(bundleSize) || bundleSize < 0) {
+      Zotero.Prefs.set('pmcid.resolve.bundleSize', 10)
+    }
+
+    void Zotero.PreferencePanes.register({
+      pluginID,
+      label: 'PMCID fetch',
+      image: `${rootURI}logo.svg`,
+      src: `${rootURI}prefs.xhtml`,
+      defaultXUL: true,
+    })
+
     this.notifier = Zotero.Notifier.registerObserver(
       {
         notify: async (action, _type, ids, _extraData) => {
@@ -277,19 +291,24 @@ export class PMCIDFetcher {
     // resolve PMID/PMCID based on DOI
     const resolve = items.filter(i => !i.pmid)
     const failures = new class {
+      private bundleSize: number
       private messages: Array<{ doi: string; error: string }> = []
       private multiple: boolean
 
       constructor() {
         this.multiple = resolve.length > 1
+        const configured = Number(Zotero.Prefs.get('pmcid.resolve.bundleSize'))
+        this.bundleSize = Number.isFinite(configured) ? Math.max(0, Math.trunc(configured)) : 10
       }
 
       record(doi: string, error: string) {
+        if (this.bundleSize === 0) return
         this.messages.push({ doi, error })
-        if (this.messages.length >= 10) this.flush()
+        if (this.messages.length >= this.bundleSize) this.flush()
       }
 
       flush() {
+        if (this.bundleSize === 0) return
         if (!this.messages.length) return
 
         if (this.multiple || this.messages.length > 1) {
@@ -305,7 +324,7 @@ export class PMCIDFetcher {
 
         this.messages = []
       }
-    }
+    }()
 
     for (const item of resolve) {
       const url = `https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?${
