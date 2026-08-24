@@ -68,6 +68,9 @@ async function build() {
     entryPoints: [ 'lib.ts' ],
     outdir: 'build',
   })
+
+  await fs.promises.copyFile('prefs.xhtml', path.join('build', 'prefs.xhtml'))
+  await fs.promises.copyFile('logo.svg', path.join('build', 'logo.svg'))
 }
 
 build().catch(err => {

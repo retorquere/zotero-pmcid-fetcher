@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="PMCID fetch">
+  <path d="M14 14h22l8 8v28H14z" fill="#ffffff" fill-opacity="0.95" stroke="#1d3557" stroke-width="2" stroke-linejoin="round" />
+  <path d="M36 14v8h8" fill="#e8f6fb" stroke="#1d3557" stroke-width="2" stroke-linejoin="round" />
+  <rect x="18" y="27" width="22" height="2.8" rx="1.4" fill="#99cfe2" />
+  <rect x="18" y="33" width="22" height="2.8" rx="1.4" fill="#99cfe2" />
+
+  <rect x="9" y="43" width="22" height="10" rx="5" fill="#264653" />
+  <text x="20" y="50" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="5.2" font-weight="700" fill="#f1faee">PMID</text>
+
+  <rect x="33" y="43" width="22" height="10" rx="5" fill="#1d3557" />
+  <text x="44" y="50" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="4.6" font-weight="700" fill="#f1faee">PMCID</text>
+</svg>

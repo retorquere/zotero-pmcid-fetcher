@@ -1,6 +1,7 @@
 declare const Components: any
 declare const Cu: any
 declare var Zotero: any // eslint-disable-line no-var
+declare var rootURI: string // eslint-disable-line no-var
 
 import { DebugLog } from 'zotero-plugin/debug-log'
 
@@ -18,8 +19,8 @@ Cu.importGlobalProperties(['fetch', 'Blob', 'FormData'])
 
 class Deferred {
   public promise: Promise<void>
-  public resolve: (data?: any) => void
-  public reject: (err: Error) => void
+  public resolve!: (data?: any) => void
+  public reject!: (err: Error) => void
 
   constructor() {
     this.promise = new Promise((resolve, reject) => {
@@ -35,14 +36,14 @@ class Deferred {
 class Throttle {
   private jobs: WeakMap<Deferred, number> = new WeakMap()
   private job = 0
-  private queue = []
+  private queue: Deferred[] | null = []
   private interval: number
 
   constructor() {
     this.interval = Zotero.getMainWindow().setInterval(() => {
       if (!this.queue) return Zotero.getMainWindow().clearInterval(this.interval)
 
-      const deferred: Deferred = this.queue.shift()
+      const deferred = this.queue.shift()
       if (deferred) {
         debug(`${(new Date()).toISOString()} starting ${this.jobs.get(deferred)}`)
         this.jobs.delete(deferred)
@@ -71,6 +72,8 @@ class Throttle {
 
   slot() {
     const deferred = new Deferred()
+    if (!this.queue) return deferred.promise
+
     this.jobs.set(deferred, ++this.job)
     debug(`${(new Date()).toISOString()} scheduling ${this.jobs.get(deferred)}`)
     this.queue.push(deferred)
@@ -79,11 +82,11 @@ class Throttle {
 
   shutdown() {
     this.queue = null
-    this.jobs = null
+    this.jobs = new WeakMap()
   }
 }
 
-function flash(title, body = null, timeout = 8) {
+function flash(title: string, body: string | null = null, timeout = 8) {
   try {
     debug(`flashed ${JSON.stringify({ title, body })}`)
     const pw = new Zotero.ProgressWindow()
@@ -95,6 +98,17 @@ function flash(title, body = null, timeout = 8) {
   }
   catch (err) {
     debug(`@flash failed: ${JSON.stringify({ title, body })}: ${err}`)
+  }
+}
+
+function normalizeError(err: unknown): { doi?: string; dois?: string; error: string; data?: unknown; message?: string } {
+  const e = err as Record<string, unknown>
+  return {
+    doi: typeof e?.doi === 'string' ? e.doi : undefined,
+    dois: typeof e?.dois === 'string' ? e.dois : undefined,
+    error: typeof e?.error === 'string' ? e.error : String(err),
+    data: e?.data,
+    message: typeof e?.message === 'string' ? e.message : String(err),
   }
 }
 
@@ -134,13 +148,26 @@ function selectedItems(): any[] {
 }
 
 export class PMCIDFetcher {
-  notifier: number
-  throttle: Throttle
+  notifier?: number
+  throttle?: Throttle
 
   startup() {
     debug('startup')
     this.throttle = new Throttle()
     debug('throttler installed')
+
+    const bundleSize = Zotero.Prefs.get('pmcid.resolve.bundleSize')
+    if (typeof bundleSize !== 'number' || !Number.isFinite(bundleSize) || bundleSize < 0) {
+      Zotero.Prefs.set('pmcid.resolve.bundleSize', 10)
+    }
+
+    void Zotero.PreferencePanes.register({
+      pluginID,
+      label: 'PMCID fetch',
+      image: `${rootURI}logo.svg`,
+      src: `${rootURI}prefs.xhtml`,
+      defaultXUL: true,
+    })
 
     this.notifier = Zotero.Notifier.registerObserver(
       {
@@ -262,7 +289,44 @@ export class PMCIDFetcher {
       .filter(item => item.doi && !(item.pmid && item.pmcid))
 
     // resolve PMID/PMCID based on DOI
-    for (const item of items.filter(i => !i.pmid)) {
+    const resolve = items.filter(i => !i.pmid)
+    const failures = new class {
+      private bundleSize: number
+      private messages: Array<{ doi: string; error: string }> = []
+      private multiple: boolean
+
+      constructor() {
+        this.multiple = resolve.length > 1
+        const configured = Number(Zotero.Prefs.get('pmcid.resolve.bundleSize'))
+        this.bundleSize = Number.isFinite(configured) ? Math.max(0, Math.trunc(configured)) : 10
+      }
+
+      record(doi: string, error: string) {
+        if (this.bundleSize === 0) return
+        this.messages.push({ doi, error })
+        if (this.messages.length >= this.bundleSize) this.flush()
+      }
+
+      flush() {
+        if (this.bundleSize === 0) return
+        if (!this.messages.length) return
+
+        if (this.multiple || this.messages.length > 1) {
+          const details = this.messages
+            .map(failure => failure.doi)
+            .join(', ')
+          flash('Could not resolve DOI', `Failed to resolve PMID for ${this.messages.length} DOI(s):\n${details}`)
+        }
+        else {
+          const { doi, error } = this.messages[0]
+          flash('Could not resolve DOI', `Failed to resolve PMID for ${doi}: ${error}`)
+        }
+
+        this.messages = []
+      }
+    }()
+
+    for (const item of resolve) {
       const url = `https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?${
         Object.entries({
           db: 'pubmed',
@@ -274,7 +338,7 @@ export class PMCIDFetcher {
       debug(url)
 
       try {
-        await this.throttle.slot()
+        await this.throttle?.slot()
         const response = await fetch(url)
         if (!response.ok) throw { doi: item.doi, error: `NCBI returned ${response.status} (${response.statusText})`, data: {} }
 
@@ -292,10 +356,12 @@ export class PMCIDFetcher {
         item.save = true
       }
       catch (err) {
-        flash('Could not resolve DOI', `Failed to resolve PMID for ${err.doi}: ${err.error}`)
-        debug(`Could not fetch resolve for ${url}: ${err.error}: ${JSON.stringify(err.data)}`)
+        const e = normalizeError(err)
+        failures.record(e.doi || item.doi, e.error)
+        debug(`Could not fetch resolve for ${url}: ${e.error}: ${JSON.stringify(e.data)}`)
       }
     }
+    failures.flush()
 
     const still_incomplete = items.filter(item => !item.pmid || !item.pmcid)
     const max = 200
@@ -314,7 +380,7 @@ export class PMCIDFetcher {
       debug(url)
 
       try {
-        await this.throttle.slot()
+        await this.throttle?.slot()
         const response = await fetch(url)
         if (!response.ok) throw { dois, error: `NCBI returned ${response.status} (${response.statusText})`, data: {} }
 
@@ -336,8 +402,9 @@ export class PMCIDFetcher {
         }
       }
       catch (err) {
-        flash('Could not convert DOI to PMID/PMCID', `Failed to convert ${err.dois}: ${err.error}`)
-        debug(`Could not convert DOI to PMID/PMCID for ${url}: ${err.error}: ${JSON.stringify(err.data)}`)
+        const e = normalizeError(err)
+        flash('Could not convert DOI to PMID/PMCID', `Failed to convert ${e.dois || dois}: ${e.error}`)
+        debug(`Could not convert DOI to PMID/PMCID for ${url}: ${e.error}: ${JSON.stringify(e.data)}`)
       }
     }
 
@@ -354,7 +421,7 @@ export class PMCIDFetcher {
       }
       if (tags) {
         try {
-          await this.throttle.slot()
+          await this.throttle?.slot()
           const url = `https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=PubMed&tool=Zotero&retmode=xml&rettype=citation&id=${item.pmid || item.pmcid}`
           const text: string = await (await fetch(url)).text()
           const doc: Document = parser.parseFromString(text, 'text/xml')
@@ -368,7 +435,8 @@ export class PMCIDFetcher {
           }
         }
         catch (err) {
-          flash('Could not fetch tags', `Could not fetch tags for ${item.pmid || item.pmcid}: ${err.message}`)
+          const e = normalizeError(err)
+          flash('Could not fetch tags', `Could not fetch tags for ${item.pmid || item.pmcid}: ${e.message || e.error}`)
         }
       }
 
