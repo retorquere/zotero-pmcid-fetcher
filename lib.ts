@@ -3,7 +3,7 @@ declare const Cu: any
 declare var Zotero: any // eslint-disable-line no-var
 declare var rootURI: string // eslint-disable-line no-var
 
-import { DebugLog } from 'zotero-plugin/debug-log'
+import { DebugLogSender } from 'zotero-plugin/debug-log'
 
 import { PromptService } from './prompt'
 
@@ -191,10 +191,6 @@ export class PMCIDFetcher {
       'pmcid-fetcher',
     )
     debug('notifier installed')
-
-    debug('adding help menu')
-    DebugLog.register('PMCID fetcher', ['extensions.zotero.pmcid.'])
-    debug('help menu added')
   }
 
   shutdown() {

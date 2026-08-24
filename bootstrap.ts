@@ -1,5 +1,7 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/ban-types, prefer-rest-params, @typescript-eslint/no-unnecessary-type-assertion, no-throw-literal, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unused-vars, @typescript-eslint/no-empty-function */
 
+import { DebugLogSender } from 'zotero-plugin/debug-log'
+
 declare const Components: any
 declare var Services: any // eslint-disable-line no-var
 declare const dump: (msg: string) => void
@@ -20,6 +22,9 @@ export function uninstall(_data, _reason) {}
 
 export async function startup({ resourceURI, rootURI = resourceURI.spec }) {
   debug('bootstrap startup')
+  const sender = new DebugLogSender('zotero-pmcid-fetcher@iris-advies.com', 'Send PMCID fetcher debug log', ['extensions.zotero.pmcid.'])
+  sender.enabled = true
+
   Services.scriptloader.loadSubScript(`${rootURI}lib.js`, { rootURI, Zotero })
   debug('zotero loaded, lib loaded')
   Zotero.PMCIDFetcher.startup()
