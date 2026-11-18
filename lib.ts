@@ -121,7 +121,7 @@ function getField(item, field) {
   }
   catch {}
 
-  const re = new RegExp(`^${field}\s*:(.*)`, 'i')
+  const re = new RegExp(`^${field}\\s*:(.*)`, 'i')
   let m: RegExpMatchArray
   for (const line of (item.getField('extra') || '').split('\n')) {
     if (m = line.match(re)) {
@@ -275,10 +275,10 @@ export class PMCIDFetcher {
         }
 
         if (!req.doi && (req.doi = getField(item, 'url'))) {
-          if (!req.doi.match(/^https?:\/\/doi.org\//i)) req.doi = ''
+          if (!req.doi.match(/^https?:\/\/(dx\.)?doi\.org\//i)) req.doi = ''
         }
 
-        req.doi = (req.doi || '').replace(/^https?:\/\/doi.org\//i, '')
+        req.doi = (req.doi || '').trim().replace(/^(https?:\/\/(dx\.)?doi\.org\/|doi:\s*)/i, '')
 
         return req
       })
@@ -366,7 +366,7 @@ export class PMCIDFetcher {
       const url = `https://www.ncbi.nlm.nih.gov/pmc/utils/idconv/v1.0/?${
         Object.entries({
           tool: 'zotero-pmcid-fetcher',
-          email: 'email=emiliano.heyns@iris-advies.com',
+          email: 'emiliano.heyns@iris-advies.com',
           ids: dois,
           format: 'json',
           idtype: 'doi',
@@ -385,7 +385,9 @@ export class PMCIDFetcher {
         if (!data.records) throw { dois, error: 'NCBI returned no records', data }
 
         for (const item of chunk) {
-          const found = data.records.find(f => f.doi === item.doi)
+          // DOIs are case-insensitive and NCBI may return a different case than requested
+          const doi = item.doi.toLowerCase()
+          const found = data.records.find(f => f['requested-id'] === item.doi || f.doi?.toLowerCase() === doi)
           if (!found) continue
 
           for (const id of ['pmcid', 'pmid']) {
