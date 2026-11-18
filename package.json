@@ -1,7 +1,7 @@
 {
   "name": "zotero-pmcid-fetcher",
   "type": "module",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "PMCID fetcher",
   "scripts": {
     "lint": "dprint fmt *.ts && dprint check *.ts",
